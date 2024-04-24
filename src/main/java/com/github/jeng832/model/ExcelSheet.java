@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Optional;
 
@@ -26,6 +27,10 @@ public class ExcelSheet {
         Cell cell = getCell(cellCode);
         if (cell == null) return Optional.empty();
         return Optional.ofNullable(cell.getStringCellValue());
+    }
+
+    public Optional<String> getValueAsString(CellAddress cellAddress) {
+        return getValueAsString(cellAddress.toString());
     }
 
     public Optional<Double> getValueAsDouble(String cellCode) {
@@ -56,5 +61,23 @@ public class ExcelSheet {
         Cell cell = getCell(cellCode);
         if (cell == null) return false;
         return CellType.FORMULA.equals(cell.getCellType());
+    }
+
+    public boolean isMergedCell(CellAddress cellAddress) {
+        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public CellAddress getRepresentativeMergedCell(CellAddress cellAddress) {
+        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
+                return new CellAddress(mergedRegion.getFirstRow(), mergedRegion.getFirstColumn());
+            }
+        }
+        return cellAddress;
     }
 }

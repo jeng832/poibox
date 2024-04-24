@@ -31,7 +31,7 @@ public class ExcelPropertyMap {
     public boolean hasSetter(Field field) {
         return this.map.containsKey(field) && this.map.get(field).setter != null;
     }
-    class CellValueAndSetter {
+    private static class CellValueAndSetter {
         String value;
         Method setter;
 

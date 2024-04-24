@@ -2,11 +2,15 @@ package com.github.jeng832.converter;
 
 import com.github.jeng832.model.TestClass;
 import org.apache.poi.ss.util.CellAddress;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ExcelConverterTest {
 
@@ -15,7 +19,7 @@ class ExcelConverterTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelConverter<TestClass> converter = ExcelConverter.<TestClass>builder()
+        ExcelConverter converter = ExcelConverter.builder()
                 .excelFilePath(absolutePath)
                 .sheetName("시트1")
                 .hasHeader(true)
@@ -23,7 +27,9 @@ class ExcelConverterTest {
                 .headerEndCell(new CellAddress("D1"))
                 .build();
 
-        converter.toObjects(TestClass.class);
+        List<TestClass> objects = converter.toObjects(TestClass.class);
+        assertNotNull(objects);
+        System.out.println(objects);
 
     }
 

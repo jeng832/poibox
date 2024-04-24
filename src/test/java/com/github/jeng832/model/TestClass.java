@@ -17,4 +17,14 @@ public class TestClass {
 
     @ExcelProperty("날짜")
     private LocalDate time;
+
+    @Override
+    public String toString() {
+        return "TestClass{" +
+                "number=" + number +
+                ", num=" + num +
+                ", name='" + name + '\'' +
+                ", time=" + time +
+                '}';
+    }
 }

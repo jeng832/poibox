@@ -12,9 +12,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class ExcelConverter<T> {
+public class ExcelConverter {
 
-    private final T clazz;
     private final ExcelSheet sheet;
     private final boolean hasHeader;
     private final HeaderDirection headerDirection;
@@ -22,8 +21,7 @@ public class ExcelConverter<T> {
     private final CellAddress headerEndCell;
     private final int linesOfUnit;
 
-    private ExcelConverter(Builder<T> builder) throws IOException {
-        this.clazz = builder.clazz;
+    private ExcelConverter(Builder builder) throws IOException {
         this.sheet = Excel.of(builder.excelFilePath).getSheet(builder.sheetName);
         this.hasHeader = builder.hasHeader;
         this.headerDirection = builder.headerDirection;
@@ -33,12 +31,12 @@ public class ExcelConverter<T> {
 
     }
 
-    public static <T> Builder<T> builder() {
-        return new Builder<>();
+    public static Builder builder() {
+        return new Builder();
     }
 
 
-    public List<T> toObjects(Class<T> clazz) {
+    public <T> List<T> toObjects(Class<T> clazz) {
         // TODO header의 내용을 읽고 가장 아래 row를 header목록으로 저장
         // T 객체에 property어노테이션으로 설정한 부분을 가져온다.
         // heaer이름과 property 값이 같으면 값을 set 한다..
@@ -66,9 +64,8 @@ public class ExcelConverter<T> {
         return null;
     }
 
-    public static class Builder<T> {
+    public static class Builder {
 
-        private T clazz;
         private String excelFilePath = null;
         private String sheetName = null;
         private boolean hasHeader = false;
@@ -77,48 +74,43 @@ public class ExcelConverter<T> {
         private CellAddress headerEndCell = null;
         private int linesOfUnit = 1;
 
-        public Builder<T> clazz(T clazz) {
-            this.clazz = clazz;
-            return this;
-        }
-
-        public Builder<T> excelFilePath(String excelFilePath) {
+        public Builder excelFilePath(String excelFilePath) {
             this.excelFilePath = excelFilePath;
             return this;
         }
 
-        public Builder<T> sheetName(String sheetName) {
+        public Builder sheetName(String sheetName) {
             this.sheetName = sheetName;
             return this;
         }
 
-        public Builder<T> hasHeader(boolean hasHeader) {
+        public Builder hasHeader(boolean hasHeader) {
             this.hasHeader = hasHeader;
             return this;
         }
 
-        public Builder<T> headerDirection(HeaderDirection headerDirection) {
+        public Builder headerDirection(HeaderDirection headerDirection) {
             this.headerDirection = headerDirection;
             return this;
         }
 
-        public Builder<T> headerStartCell(CellAddress headerStartCell) {
+        public Builder headerStartCell(CellAddress headerStartCell) {
             this.headerStartCell = headerStartCell;
             return this;
         }
 
-        public Builder<T> headerEndCell(CellAddress headerEndCell) {
+        public Builder headerEndCell(CellAddress headerEndCell) {
             this.headerEndCell = headerEndCell;
             return this;
         }
 
-        public Builder<T> linesOfUnit(int linesOfUnit) {
+        public Builder linesOfUnit(int linesOfUnit) {
             this.linesOfUnit = linesOfUnit;
             return this;
         }
 
-        public ExcelConverter<T> build() throws IOException {
-            return new ExcelConverter<>(this);
+        public ExcelConverter build() throws IOException {
+            return new ExcelConverter(this);
         }
     }
 }

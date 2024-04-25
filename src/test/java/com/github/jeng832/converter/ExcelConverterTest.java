@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ExcelConverterTest {
 
     @Test
-    public void convert() throws IOException {
+    public void convert() throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 

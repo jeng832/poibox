@@ -80,4 +80,8 @@ public class ExcelSheet {
         }
         return cellAddress;
     }
+
+    public int getLastRowNumber() {
+        return this.sheet.getLastRowNum();
+    }
 }

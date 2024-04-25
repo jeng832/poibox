@@ -8,8 +8,11 @@ import com.github.jeng832.model.ExcelSheetHeader;
 import org.apache.poi.ss.util.CellAddress;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExcelConverter {
@@ -36,7 +39,7 @@ public class ExcelConverter {
     }
 
 
-    public <T> List<T> toObjects(Class<T> clazz) {
+    public <T> List<T> toObjects(Class<T> clazz) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         // TODO header의 내용을 읽고 가장 아래 row를 header목록으로 저장
         // T 객체에 property어노테이션으로 설정한 부분을 가져온다.
         // heaer이름과 property 값이 같으면 값을 set 한다..
@@ -61,7 +64,19 @@ public class ExcelConverter {
             }
         }
 
-        return null;
+        int contentStartRow = this.headerEndCell.getRow() + 1;
+        int contentEndRow = sheet.getLastRowNumber();
+
+        List<T> objects = new ArrayList<>();
+        for (int i = contentStartRow; i < contentEndRow; i += linesOfUnit) {
+            T object = clazz.getDeclaredConstructor().newInstance();
+
+            // content unit 별로 위에서 지정한 setter로 값 생성..
+
+            objects.add(object);
+        }
+
+        return objects;
     }
 
     public static class Builder {

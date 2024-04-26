@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class ExcelPropertyMap {
 
@@ -26,6 +27,10 @@ public class ExcelPropertyMap {
     public Optional<Method> getSetter(Field field) {
         if (!this.map.containsKey(field)) return Optional.empty();
         return Optional.ofNullable(this.map.get(field).setter);
+    }
+
+    public Set<Field> getFields() {
+        return this.map.keySet();
     }
 
     public boolean hasSetter(Field field) {

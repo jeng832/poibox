@@ -15,7 +15,7 @@ public class ExcelSheetHeader {
     public ExcelSheetHeader(ExcelSheet sheet, CellAddress headerStartCell, CellAddress headerEndCell) {
         this.headerStartCell = Objects.nonNull(headerStartCell) ? headerStartCell : CellAddress.A1;
         this.headerEndCell = Objects.nonNull(headerEndCell) ? headerEndCell : CellAddress.A1;
-        int headerWidth = this.headerEndCell.getColumn() - this.headerStartCell.getColumn() + 1;
+        int headerWidth = getHeaderWidth();
         int headerHeight = getHeaderHeight();
         this.cells = new ExcelSheetHeaderCell[headerHeight][headerWidth];
         for (int i = 0; i < headerHeight; i++) {
@@ -37,5 +37,13 @@ public class ExcelSheetHeader {
 
     public int getHeaderHeight() {
         return this.headerEndCell.getRow() - this.headerStartCell.getRow() + 1;
+    }
+
+    public int getHeaderWidth() {
+        return this.headerEndCell.getColumn() - this.headerStartCell.getColumn() + 1;
+    }
+
+    public String getHeaderValue(int headerRow, int headerColumn) {
+        return this.cells[headerRow][headerColumn].getValue();
     }
 }

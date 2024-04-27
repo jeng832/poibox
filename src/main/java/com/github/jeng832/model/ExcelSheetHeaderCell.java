@@ -17,4 +17,8 @@ public class ExcelSheetHeaderCell {
         this.mergedCell = true;
         this.representativeCell = representativeCell;
     }
+
+    public String getValue() {
+        return value;
+    }
 }

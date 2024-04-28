@@ -4,14 +4,17 @@ import com.github.jeng832.annotation.ExcelProperty;
 import com.github.jeng832.model.Excel;
 import com.github.jeng832.model.ExcelPropertyMap;
 import com.github.jeng832.model.ExcelSheet;
-import com.github.jeng832.model.ExcelSheetHeader;
 import org.apache.poi.ss.util.CellAddress;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class ExcelConverter {
 
@@ -23,11 +26,18 @@ public class ExcelConverter {
     private final int linesOfUnit;
 
     private ExcelConverter(Builder builder) throws IOException {
-        this.sheet = Excel.of(builder.excelFilePath).getSheet(builder.sheetName);
+        if (builder.hasHeader) {
+            this.sheet = Excel.of(builder.excelFilePath).getSheetWithHeader(builder.sheetName, builder.headerStartCell, builder.headerEndCell);
+        } else {
+            this.sheet = Excel.of(builder.excelFilePath).getSheet(builder.sheetName);
+        }
         this.hasHeader = builder.hasHeader;
         this.headerDirection = builder.headerDirection;
         this.headerStartCell = builder.headerStartCell;
         this.headerEndCell = builder.headerEndCell;
+        if (this.sheet.getHeaderHeight() != builder.linesOfUnit && builder.linesOfUnit != 1) {
+            throw new IllegalArgumentException();
+        }
         this.linesOfUnit = builder.linesOfUnit;
 
     }
@@ -45,7 +55,6 @@ public class ExcelConverter {
         // 2. content를 쪼갠다.
         // 3. 반복문을 돌면서 저장
 
-        ExcelSheetHeader header = new ExcelSheetHeader(this.sheet, this.headerStartCell, this.headerEndCell);
         ExcelPropertyMap excelPropertyMap = new ExcelPropertyMap();
         for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(ExcelProperty.class)) {
@@ -66,18 +75,83 @@ public class ExcelConverter {
         int contentEndRow = sheet.getLastRowNumber();
 
         List<T> objects = new ArrayList<>();
-        for (int i = contentStartRow; i < contentEndRow; i += linesOfUnit) {
+        for (int i = contentStartRow; i <= contentEndRow; i += linesOfUnit) {
             T object = clazz.getDeclaredConstructor().newInstance();
+            for (int j = 0; j < sheet.getHeaderHeight(); j++) {
+                for (int k = 0; k < sheet.getHeaderWidth(); k++) {
+                    CellAddress cellAddress = new CellAddress(i + j, k);
 
-            // content unit 별로 위에서 지정한 setter로 값 생성..
+                    sheet.getHeaderValue(j, k).ifPresent(headerValue -> {
+                        Set<Field> fields = excelPropertyMap.getFields();
+                        for (Field field : fields) {
+                            String value = excelPropertyMap.getValue(field).orElse(null);
+                            if (headerValue.equals(value)) {
+                                Optional<Method> optSetter = excelPropertyMap.getSetter(field);
+                                if (optSetter.isPresent()) {
+                                    Method setter = optSetter.get();
+                                    try {
+                                        setValue(object, setter, cellAddress);
+                                    } catch (InvocationTargetException | IllegalAccessException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                } else {
+                                    try {
+                                        setValue(object, field, cellAddress);
+                                    } catch (IllegalAccessException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
 
-            excelPropertyMap.getFields();
+                            }
+                        }
+                    });
 
+                }
+            }
 
             objects.add(object);
         }
 
         return objects;
+    }
+
+    private <T> void setValue(T object, Method setter, CellAddress cellAddress) throws InvocationTargetException, IllegalAccessException {
+        if (sheet.isStringCell(cellAddress) || sheet.isFormulaCell(cellAddress)) {
+            setter.invoke(object, sheet.getValueAsString(cellAddress));
+        } else if (sheet.isNumberCell(cellAddress)) {
+            setter.invoke(object, sheet.getValueAsDouble(cellAddress));
+        } else if (sheet.isBooleanCell(cellAddress)) {
+            setter.invoke(object, sheet.getValueAsBoolean(cellAddress));
+        }
+    }
+
+    private <T> void setValue(T object, Field field, CellAddress cellAddress) throws IllegalAccessException {
+        field.setAccessible(true);
+        Class<?> fieldType = field.getType();
+        if (sheet.isStringCell(cellAddress) || sheet.isFormulaCell(cellAddress)) {
+            field.set(object, sheet.getValueAsString(cellAddress));
+        } else if(sheet.isDateCell(cellAddress)) {
+            if (fieldType.equals(Date.class)) {
+                field.set(object, sheet.getValueAsDate(cellAddress));
+            } else if (fieldType.equals(LocalDate.class)) {
+                field.set(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            } else if (fieldType.equals(LocalDateTime.class)) {
+                field.set(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            } else if (fieldType.equals(ZonedDateTime.class)) {
+                field.set(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
+            }
+
+        } else if (sheet.isNumberCell(cellAddress)) {
+            if (fieldType.equals(Double.class)) {
+                field.set(object, sheet.getValueAsDouble(cellAddress));
+            } else if (fieldType.equals(Integer.TYPE) || fieldType.equals(Integer.class)) {
+                field.set(object, sheet.getValueAsInteger(cellAddress));
+            } else if (fieldType.equals(Long.class)) {
+                field.set(object, sheet.getValueAsLong(cellAddress));
+            }
+        } else if (sheet.isBooleanCell(cellAddress)) {
+            field.set(object, sheet.getValueAsBoolean(cellAddress));
+        }
     }
 
     public static class Builder {

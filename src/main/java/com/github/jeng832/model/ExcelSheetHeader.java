@@ -1,7 +1,9 @@
 package com.github.jeng832.model;
 
 import com.github.jeng832.converter.HeaderDirection;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Objects;
 
@@ -12,7 +14,7 @@ public class ExcelSheetHeader {
     private CellAddress headerEndCell;
     private ExcelSheetHeaderCell[][] cells;
 
-    public ExcelSheetHeader(ExcelSheet sheet, CellAddress headerStartCell, CellAddress headerEndCell) {
+    public ExcelSheetHeader(Sheet sheet, CellAddress headerStartCell, CellAddress headerEndCell) {
         this.headerStartCell = Objects.nonNull(headerStartCell) ? headerStartCell : CellAddress.A1;
         this.headerEndCell = Objects.nonNull(headerEndCell) ? headerEndCell : CellAddress.A1;
         int headerWidth = getHeaderWidth();
@@ -23,8 +25,11 @@ public class ExcelSheetHeader {
             for (int j = 0; j < headerWidth; j++) {
                 int currentCol = this.headerStartCell.getColumn() + j;
                 CellAddress currentCell = new CellAddress(currentRow, currentCol);
-                ExcelSheetHeaderCell headerCell = new ExcelSheetHeaderCell(currentCell, sheet.getValueAsString(currentCell).orElse(null));
-                CellAddress representativeMergedCell = sheet.getRepresentativeMergedCell(currentCell);
+                int row = currentCell.getRow();
+                int column = currentCell.getColumn();
+                String headerValue = sheet.getRow(row).getCell(column).getStringCellValue();
+                ExcelSheetHeaderCell headerCell = new ExcelSheetHeaderCell(currentCell, headerValue);
+                CellAddress representativeMergedCell = getRepresentativeMergedCell(sheet, currentCell);
                 if (!currentCell.equals(representativeMergedCell)) {
                     int relativeRow = currentCell.getRow() - representativeMergedCell.getRow();
                     int relativeCol = currentCell.getColumn() - representativeMergedCell.getColumn();
@@ -35,15 +40,24 @@ public class ExcelSheetHeader {
         }
     }
 
-    public int getHeaderHeight() {
+    private CellAddress getRepresentativeMergedCell(Sheet sheet, CellAddress cellAddress) {
+        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
+                return new CellAddress(mergedRegion.getFirstRow(), mergedRegion.getFirstColumn());
+            }
+        }
+        return cellAddress;
+    }
+
+    int getHeaderHeight() {
         return this.headerEndCell.getRow() - this.headerStartCell.getRow() + 1;
     }
 
-    public int getHeaderWidth() {
+    int getHeaderWidth() {
         return this.headerEndCell.getColumn() - this.headerStartCell.getColumn() + 1;
     }
 
-    public String getHeaderValue(int headerRow, int headerColumn) {
+    String getHeaderValue(int headerRow, int headerColumn) {
         return this.cells[headerRow][headerColumn].getValue();
     }
 }

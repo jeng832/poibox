@@ -2,59 +2,142 @@ package com.github.jeng832.model;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddress;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 public class ExcelSheet {
 
     private final Sheet sheet;
+    private final ExcelSheetHeader header;
 
     ExcelSheet(Sheet sheet) {
         this.sheet = sheet;
+        this.header = null;
     }
 
-    public Cell getCell(String cellAddress) {
-        CellAddress address = new CellAddress(cellAddress);
+    ExcelSheet(Sheet sheet, CellAddress headerStartCell, CellAddress headerEndCell) {
+        this.sheet = sheet;
+        this.header = new ExcelSheetHeader(sheet, headerStartCell, headerEndCell);
+    }
+
+    private Cell getCell(CellAddress address) {
         int row = address.getRow();
         int column = address.getColumn();
         return this.sheet.getRow(row).getCell(column);
     }
 
-    public Optional<String> getValueAsString(String cellCode) {
-        Cell cell = getCell(cellCode);
-        if (cell == null) return Optional.empty();
-        return Optional.ofNullable(cell.getStringCellValue());
+    public String getValueAsString(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return cell.getStringCellValue();
     }
 
-    public Optional<Double> getValueAsDouble(String cellCode) {
-        Cell cell = getCell(cellCode);
-        if (cell == null) return Optional.empty();
-        return Optional.of(cell.getNumericCellValue());
+    public Double getValueAsDouble(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return cell.getNumericCellValue();
     }
 
-    public Optional<Boolean> getValueAsBoolean(String cellCode) {
-        Cell cell = getCell(cellCode);
-        if (cell == null) return Optional.empty();
-        return Optional.of(cell.getBooleanCellValue());
+    public Integer getValueAsInteger(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return Double.valueOf(cell.getNumericCellValue()).intValue();
     }
 
-    public boolean isStringCell(String cellCode) {
-        Cell cell = getCell(cellCode);
+    public Long getValueAsLong(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return Double.valueOf(cell.getNumericCellValue()).longValue();
+    }
+
+    public LocalDateTime getValueAsLocalDateTime(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return cell.getLocalDateTimeCellValue();
+    }
+
+    public Date getValueAsDate(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return cell.getDateCellValue();
+    }
+
+    public Boolean getValueAsBoolean(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return null;
+        return cell.getBooleanCellValue();
+    }
+
+    public boolean isStringCell(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
         if (cell == null) return false;
         return CellType.STRING.equals(cell.getCellType());
     }
 
-    public boolean isNumberCell(String cellCode) {
-        Cell cell = getCell(cellCode);
+    public boolean isNumberCell(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
         if (cell == null) return false;
         return CellType.NUMERIC.equals(cell.getCellType());
     }
 
-    public boolean isFormulaCell(String cellCode) {
-        Cell cell = getCell(cellCode);
+    public boolean isFormulaCell(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
         if (cell == null) return false;
         return CellType.FORMULA.equals(cell.getCellType());
+    }
+
+    public boolean isBooleanCell(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return false;
+        return CellType.BOOLEAN.equals(cell.getCellType());
+    }
+
+    public boolean isDateCell(CellAddress cellAddress) {
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return false;
+        return CellType.NUMERIC.equals(cell.getCellType()) && DateUtil.isCellDateFormatted(cell);
+    }
+
+    public boolean isMergedCell(CellAddress cellAddress) {
+        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public CellAddress getRepresentativeMergedCell(CellAddress cellAddress) {
+        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
+            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
+                return new CellAddress(mergedRegion.getFirstRow(), mergedRegion.getFirstColumn());
+            }
+        }
+        return cellAddress;
+    }
+
+    public int getLastRowNumber() {
+        return this.sheet.getLastRowNum();
+    }
+
+    public int getHeaderHeight() {
+        if (this.header == null) return 0;
+        return this.header.getHeaderHeight();
+    }
+
+    public int getHeaderWidth() {
+        if (this.header == null) return 0;
+        return this.header.getHeaderWidth();
+    }
+
+    public Optional<String> getHeaderValue(int relativeCol, int relativeRow) {
+        if (this.header == null) return Optional.empty();
+        return Optional.ofNullable(header.getHeaderValue(relativeCol, relativeRow));
     }
 }

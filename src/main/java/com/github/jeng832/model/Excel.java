@@ -1,6 +1,7 @@
 package com.github.jeng832.model;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
@@ -23,5 +24,8 @@ public class Excel {
         return new ExcelSheet(workbook.getSheet(name));
     }
 
+    public ExcelSheet getSheetWithHeader(String name, CellAddress headerStartCell, CellAddress headerEndCell) {
+        return new ExcelSheet(workbook.getSheet(name), headerStartCell, headerEndCell);
+    }
 
 }

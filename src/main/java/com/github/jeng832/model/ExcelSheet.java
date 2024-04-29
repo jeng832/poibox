@@ -56,12 +56,6 @@ public class ExcelSheet {
         return Double.valueOf(cell.getNumericCellValue()).longValue();
     }
 
-    public LocalDateTime getValueAsLocalDateTime(CellAddress cellAddress) {
-        Cell cell = getCell(cellAddress);
-        if (cell == null) return null;
-        return cell.getLocalDateTimeCellValue();
-    }
-
     public Date getValueAsDate(CellAddress cellAddress) {
         Cell cell = getCell(cellAddress);
         if (cell == null) return null;
@@ -90,6 +84,20 @@ public class ExcelSheet {
         Cell cell = getCell(cellAddress);
         if (cell == null) return false;
         return CellType.FORMULA.equals(cell.getCellType());
+    }
+
+    public boolean isStringFormulaCell(CellAddress cellAddress) {
+        if (!isFormulaCell(cellAddress)) return false;
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return false;
+        return CellType.STRING.equals(cell.getCachedFormulaResultType());
+    }
+
+    public boolean isNumberFormulaCell(CellAddress cellAddress) {
+        if (!isFormulaCell(cellAddress)) return false;
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return false;
+        return CellType.NUMERIC.equals(cell.getCachedFormulaResultType());
     }
 
     public boolean isBooleanCell(CellAddress cellAddress) {

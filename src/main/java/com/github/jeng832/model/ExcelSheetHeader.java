@@ -14,7 +14,7 @@ public class ExcelSheetHeader {
     private CellAddress headerEndCell;
     private ExcelSheetHeaderCell[][] cells;
 
-    public ExcelSheetHeader(Sheet sheet, CellAddress headerStartCell, CellAddress headerEndCell) {
+    ExcelSheetHeader(Sheet sheet, CellAddress headerStartCell, CellAddress headerEndCell) {
         this.headerStartCell = Objects.nonNull(headerStartCell) ? headerStartCell : CellAddress.A1;
         this.headerEndCell = Objects.nonNull(headerEndCell) ? headerEndCell : CellAddress.A1;
         int headerWidth = getHeaderWidth();

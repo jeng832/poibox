@@ -48,13 +48,6 @@ public class ExcelConverter {
 
 
     public <T> List<T> toObjects(Class<T> clazz) throws ReflectiveOperationException {
-        // TODO header의 내용을 읽고 가장 아래 row를 header목록으로 저장
-        // T 객체에 property어노테이션으로 설정한 부분을 가져온다.
-        // heaer이름과 property 값이 같으면 값을 set 한다..
-        // 1. header 분석
-        // 2. content를 쪼갠다.
-        // 3. 반복문을 돌면서 저장
-
         ExcelPropertyMap excelPropertyMap = new ExcelPropertyMap();
         for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(ExcelProperty.class)) {
@@ -116,10 +109,44 @@ public class ExcelConverter {
     }
 
     private <T> void setValue(T object, Method setter, CellAddress cellAddress) throws InvocationTargetException, IllegalAccessException {
-        if (sheet.isStringCell(cellAddress) || sheet.isFormulaCell(cellAddress)) {
+        Class<?>[] parameterTypes = setter.getParameterTypes();
+        Class<?> parameterType = parameterTypes[0];
+        if (sheet.isFormulaCell(cellAddress)) {
+            if (parameterType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
+                setter.invoke(object, sheet.getValueAsString(cellAddress));
+            } else if (sheet.isNumberFormulaCell(cellAddress)) {
+                if (parameterType.equals(Double.TYPE) || parameterType.equals(Double.class)) {
+                    setter.invoke(object, sheet.getValueAsDouble(cellAddress));
+                } else if (parameterType.equals(Float.TYPE) || parameterType.equals(Float.class)) {
+                    setter.invoke(object, sheet.getValueAsDouble(cellAddress).floatValue());
+                } else if (parameterType.equals(Integer.TYPE) || parameterType.equals(Integer.class)) {
+                    setter.invoke(object, sheet.getValueAsInteger(cellAddress));
+                } else if (parameterType.equals(Long.TYPE) || parameterType.equals(Long.class)) {
+                    setter.invoke(object, sheet.getValueAsLong(cellAddress));
+                }
+            }
+        } else if (sheet.isStringCell(cellAddress)) {
             setter.invoke(object, sheet.getValueAsString(cellAddress));
+        } else if (sheet.isDateCell(cellAddress)) {
+            if (parameterType.equals(Date.class)) {
+                setter.invoke(object, sheet.getValueAsDate(cellAddress));
+            } else if (parameterType.equals(LocalDate.class)) {
+                setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            } else if (parameterType.equals(LocalDateTime.class)) {
+                setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            } else if (parameterType.equals(ZonedDateTime.class)) {
+                setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
+            }
         } else if (sheet.isNumberCell(cellAddress)) {
-            setter.invoke(object, sheet.getValueAsDouble(cellAddress));
+            if (parameterType.equals(Double.TYPE) || parameterType.equals(Double.class)) {
+                setter.invoke(object, sheet.getValueAsDouble(cellAddress));
+            } else if (parameterType.equals(Float.TYPE) || parameterType.equals(Float.class)) {
+                setter.invoke(object, sheet.getValueAsDouble(cellAddress).floatValue());
+            } else if (parameterType.equals(Integer.TYPE) || parameterType.equals(Integer.class)) {
+                setter.invoke(object, sheet.getValueAsInteger(cellAddress));
+            } else if (parameterType.equals(Long.TYPE) || parameterType.equals(Long.class)) {
+                setter.invoke(object, sheet.getValueAsLong(cellAddress));
+            }
         } else if (sheet.isBooleanCell(cellAddress)) {
             setter.invoke(object, sheet.getValueAsBoolean(cellAddress));
         }
@@ -128,7 +155,21 @@ public class ExcelConverter {
     private <T> void setValue(T object, Field field, CellAddress cellAddress) throws IllegalAccessException {
         field.setAccessible(true);
         Class<?> fieldType = field.getType();
-        if (sheet.isStringCell(cellAddress) || sheet.isFormulaCell(cellAddress)) {
+        if (sheet.isFormulaCell(cellAddress)) {
+            if (fieldType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
+                field.set(object, sheet.getValueAsString(cellAddress));
+            } else if (sheet.isNumberFormulaCell(cellAddress)) {
+                if (fieldType.equals(Double.TYPE) || fieldType.equals(Double.class)) {
+                    field.set(object, sheet.getValueAsDouble(cellAddress));
+                } else if (fieldType.equals(Float.TYPE) || fieldType.equals(Float.class)) {
+                    field.set(object, sheet.getValueAsDouble(cellAddress).floatValue());
+                } else if (fieldType.equals(Integer.TYPE) || fieldType.equals(Integer.class)) {
+                    field.set(object, sheet.getValueAsInteger(cellAddress));
+                } else if (fieldType.equals(Long.TYPE) || fieldType.equals(Long.class)) {
+                    field.set(object, sheet.getValueAsLong(cellAddress));
+                }
+            }
+        } else if (sheet.isStringCell(cellAddress)) {
             field.set(object, sheet.getValueAsString(cellAddress));
         } else if(sheet.isDateCell(cellAddress)) {
             if (fieldType.equals(Date.class)) {
@@ -142,11 +183,13 @@ public class ExcelConverter {
             }
 
         } else if (sheet.isNumberCell(cellAddress)) {
-            if (fieldType.equals(Double.class)) {
+            if (fieldType.equals(Double.TYPE) || fieldType.equals(Double.class)) {
                 field.set(object, sheet.getValueAsDouble(cellAddress));
+            } else if (fieldType.equals(Float.TYPE) || fieldType.equals(Float.class)) {
+                field.set(object, sheet.getValueAsDouble(cellAddress).floatValue());
             } else if (fieldType.equals(Integer.TYPE) || fieldType.equals(Integer.class)) {
                 field.set(object, sheet.getValueAsInteger(cellAddress));
-            } else if (fieldType.equals(Long.class)) {
+            } else if (fieldType.equals(Long.TYPE) || fieldType.equals(Long.class)) {
                 field.set(object, sheet.getValueAsLong(cellAddress));
             }
         } else if (sheet.isBooleanCell(cellAddress)) {

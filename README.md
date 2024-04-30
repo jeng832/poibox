@@ -7,7 +7,51 @@ mvn package
 ```
 
 ## How to use
-xml 파일의 "sheet1" 시트의 A1 ~ G1 셀 사이에 있는 헤더를 이용하는 표를 객체화 하기 위해서는 아래의 예시 코드를 참고하면 된다.
+xml 파일의 "sheet1" 시트의 A1 ~ G1 셀 사이에 있는 헤더를 이용하는 표를 객체화 하기 위한 예시이다.
+xml 파일의 시트에 있는 표를 저장할 객체의 필드에 어떤 열의 값을 저장할지 지정한다. 값의 지정은 @ExcelProperty 어노테이션을 이용한다.
+@ExcelProperty의 value는 xml파일의 표의 column 이름을 사용한다.
+
+아래와 같은 표를 객체로 변경한다고 가정하자
+
+|number|번호|이름|날짜|formula|formula2|date_time|
+|-|--|----|------------|--|-------|---------------------|
+|1|11|이순신|2022. 10. 19|12|#DIV/0!|2021. 01. 01 13:00:24|
+|2|12|James|2022. 10. 20|14|14.000|1983. 02. 24 1:00:24|
+|3|13|타이거JK|2022. 10. 21|16|8.000|2021. 1. 21 0:00:00|
+|4|14|특_수_문_자|2022. 10. 22|18|6.000|2021. 01. 04 13:00:24|
+
+먼저 표를 저장할 ExcelObject 객체로 정의 한다. 개별 column과 객체의 멤버는 @ExcelProperty를 이용한다.
+```java
+public class ExcelObject {
+
+    @ExcelProperty("number")
+    private Integer number;
+
+    @ExcelProperty("번호")
+    private int num;
+
+    @ExcelProperty("이름")
+    private String name;
+
+    @ExcelProperty("날짜")
+    private LocalDate time;
+
+    @ExcelProperty("formula")
+    private Integer sum;
+
+    @ExcelProperty("formula2")
+    private String divStr;
+
+    @ExcelProperty("formula2")
+    private Float divFloat;
+
+    @ExcelProperty("date_time")
+    private LocalDateTime dateTime;
+}
+```
+
+ExcelConverter는 지정한 xls파일을 객체로 변경하기 위한 모듈이다. builder를 통해서 생성되며, 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
+builder를 통해 생성된 ExcelConverter를 통해서 객체의 목록으로 저장할 수 있다.
 ```java
 String filePath = ... /* file path of the xml file */;
 

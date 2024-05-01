@@ -7,9 +7,9 @@ mvn package
 ```
 
 ## How to use
-xml 파일의 "sheet1" 시트의 A1 ~ G1 셀 사이에 있는 헤더를 이용하는 표를 객체화 하기 위한 예시이다.
-xml 파일의 시트에 있는 표를 저장할 객체의 필드에 어떤 열의 값을 저장할지 지정한다. 값의 지정은 @ExcelProperty 어노테이션을 이용한다.
-@ExcelProperty의 value는 xml파일의 표의 column 이름을 사용한다.
+Excel 파일의 "sheet1" 시트의 A1 ~ G1 셀 사이에 있는 헤더를 이용하는 표를 객체화 하기 위한 예시이다.
+Excel 파일의 시트에 있는 표를 저장할 객체의 필드에 어떤 열의 값을 저장할지 지정한다. 값의 지정은 @ExcelProperty 어노테이션을 이용한다.
+@ExcelProperty의 value는 Excel 파일의 표의 column 이름을 사용한다.
 
 아래와 같은 표를 객체로 변경한다고 가정하자
 
@@ -50,7 +50,7 @@ public class ExcelObject {
 }
 ```
 
-ExcelConverter는 지정한 xls파일을 객체로 변경하기 위한 모듈이다. builder를 통해서 생성되며, 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
+ExcelConverter는 지정한 Excel 파일을 객체로 변경하기 위한 모듈이다. builder를 통해서 생성되며, 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
 builder를 통해 생성된 ExcelConverter를 통해서 객체의 목록으로 저장할 수 있다.
 ```java
 String filePath = ... /* file path of the xml file */;

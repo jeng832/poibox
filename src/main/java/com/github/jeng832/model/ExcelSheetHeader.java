@@ -27,15 +27,18 @@ public class ExcelSheetHeader {
                 CellAddress currentCell = new CellAddress(currentRow, currentCol);
                 int row = currentCell.getRow();
                 int column = currentCell.getColumn();
-                String headerValue = sheet.getRow(row).getCell(column).getStringCellValue();
-                ExcelSheetHeaderCell headerCell = new ExcelSheetHeaderCell(currentCell, headerValue);
                 CellAddress representativeMergedCell = getRepresentativeMergedCell(sheet, currentCell);
-                if (!currentCell.equals(representativeMergedCell)) {
-                    int relativeRow = currentCell.getRow() - representativeMergedCell.getRow();
-                    int relativeCol = currentCell.getColumn() - representativeMergedCell.getColumn();
-                    headerCell.makeMergedCell(this.cells[i - relativeRow][j - relativeCol]);
+                ExcelSheetHeaderCell headerCell;
+                if (representativeMergedCell.equals(currentCell)) {
+                    String headerValue = sheet.getRow(row).getCell(column).getStringCellValue();
+                    headerCell = new ExcelSheetHeaderCell(currentCell, headerValue);
+                } else {
+                    int representativeCellRow = representativeMergedCell.getRow();
+                    int representativeCellColumn = representativeMergedCell.getColumn();
+                    headerCell = new ExcelSheetHeaderCell(currentCell);
+                    headerCell.makeMergedCell(this.cells[representativeCellRow - this.headerStartCell.getRow()][representativeCellColumn - this.headerStartCell.getColumn()]);
                 }
-                this.cells[currentRow][currentCol] = headerCell;
+                this.cells[currentRow - this.headerStartCell.getRow()][currentCol - this.headerStartCell.getColumn()] = headerCell;
             }
         }
     }

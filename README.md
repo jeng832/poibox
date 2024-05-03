@@ -65,3 +65,14 @@ ExcelConverter converter = ExcelConverter.builder()
 
 List<ExcelObject> objects = converter.toObjects(ExcelObject.class);
 ```
+builder 에서 각 변수에 대한 설명은 아래 표를 참조한다.
+
+| builder 항목        | 필수 여부 | 기본값                    | 설명                                                                        |
+|-------------------|-------|------------------------|---------------------------------------------------------------------------|
+| excelFilePath     | 필수    |                        | Excel 파일이 존재하는 위치                                                         |
+| sheetName         | 필수    |                        | 객체로 변경시키고자 하는 표가 있는 시트의 이름                                                |
+| hasHeader         | 비필수   | true                   | 표에 헤더가 존재하는지 여부                                                           |
+| headerStartCell   | 비필수   | A1                     | 헤더의 가장 좌측 제일 상단 셀 주소                                                      |
+| headerEndCell     | 비필수   |                        | 헤더의 가장 우측 제일 하단 셀 주소                                                      |
+| linesOfUnit       | 비필수   |                        | 표 내용에서 단일 정보 단위의 줄 갯수headerStartCell과 headerEndCell로 계산 된 줄수와 반드시 같아야 한다. |
+| contentsStartCell | 비필수   | 헤더의 가장 좌측 제일 하단 셀 아래 셀 | 내용이 시작하는 셀                                                                |

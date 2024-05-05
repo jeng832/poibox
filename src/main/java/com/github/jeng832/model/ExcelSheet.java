@@ -1,13 +1,9 @@
 package com.github.jeng832.model;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -100,6 +96,13 @@ public class ExcelSheet {
         return CellType.NUMERIC.equals(cell.getCachedFormulaResultType());
     }
 
+    public boolean isDateFormulaCell(CellAddress cellAddress) {
+        if (!isFormulaCell(cellAddress)) return false;
+        Cell cell = getCell(cellAddress);
+        if (cell == null) return false;
+        return CellType.NUMERIC.equals(cell.getCachedFormulaResultType()) && DateUtil.isCellDateFormatted(cell);
+    }
+
     public boolean isBooleanCell(CellAddress cellAddress) {
         Cell cell = getCell(cellAddress);
         if (cell == null) return false;
@@ -110,28 +113,6 @@ public class ExcelSheet {
         Cell cell = getCell(cellAddress);
         if (cell == null) return false;
         return CellType.NUMERIC.equals(cell.getCellType()) && DateUtil.isCellDateFormatted(cell);
-    }
-
-    public boolean isMergedCell(CellAddress cellAddress) {
-        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
-            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public CellAddress getRepresentativeMergedCell(CellAddress cellAddress) {
-        for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
-            if (mergedRegion.isInRange(cellAddress.getRow(), cellAddress.getColumn())) {
-                return new CellAddress(mergedRegion.getFirstRow(), mergedRegion.getFirstColumn());
-            }
-        }
-        return cellAddress;
-    }
-
-    public int getLastRowNumber() {
-        return this.sheet.getLastRowNum();
     }
 
     public int getHeaderHeight() {
@@ -147,5 +128,25 @@ public class ExcelSheet {
     public Optional<String> getHeaderValue(int relativeCol, int relativeRow) {
         if (this.header == null) return Optional.empty();
         return Optional.ofNullable(header.getHeaderValue(relativeCol, relativeRow));
+    }
+
+    public Integer getLastNonEmptyRowNumber() {
+        if (this.header == null) return null;
+        int lastRowNum = sheet.getLastRowNum();
+        for (int i = lastRowNum; i >= 0; i--) {
+            Row row = sheet.getRow(i);
+            if (!isRowEmpty(row)) return i;
+        }
+        return null;
+    }
+
+    private boolean isRowEmpty(Row row) {
+        for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+            Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -13,6 +13,10 @@ public class ExcelSheetHeaderCell {
         this.value = value;
     }
 
+    ExcelSheetHeaderCell(CellAddress cellAddress) {
+        this(cellAddress, null);
+    }
+
     public void makeMergedCell(ExcelSheetHeaderCell representativeCell) {
         this.mergedCell = true;
         this.representativeCell = representativeCell;

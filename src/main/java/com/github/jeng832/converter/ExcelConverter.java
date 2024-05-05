@@ -23,6 +23,7 @@ public class ExcelConverter {
     private final HeaderDirection headerDirection;
     private final CellAddress headerStartCell;
     private final CellAddress headerEndCell;
+    private final CellAddress contentsStartCell;
     private final int linesOfUnit;
 
     private ExcelConverter(Builder builder) throws IOException {
@@ -35,11 +36,13 @@ public class ExcelConverter {
         this.headerDirection = builder.headerDirection;
         this.headerStartCell = builder.headerStartCell;
         this.headerEndCell = builder.headerEndCell;
-        if (this.sheet.getHeaderHeight() != builder.linesOfUnit && builder.linesOfUnit != 1) {
+        this.linesOfUnit = (builder.linesOfUnit != null) ? builder.linesOfUnit : sheet.getHeaderHeight();
+        if (this.sheet.getHeaderHeight() != this.linesOfUnit) {
             throw new IllegalArgumentException();
         }
-        this.linesOfUnit = builder.linesOfUnit;
-
+        this.contentsStartCell = (builder.contentsStartCell != null) ?
+                builder.contentsStartCell :
+                (headerEndCell != null) ? new CellAddress(headerEndCell.getRow() + 1, headerStartCell.getColumn()) : new CellAddress(headerStartCell.getRow() + 1, headerStartCell.getColumn());
     }
 
     public static Builder builder() {
@@ -64,15 +67,16 @@ public class ExcelConverter {
             }
         }
 
-        int contentStartRow = this.headerEndCell.getRow() + 1;
-        int contentEndRow = sheet.getLastRowNumber();
+        int contentStartRow = this.contentsStartCell.getRow();
+        int contentEndRow = sheet.getLastNonEmptyRowNumber();
+        int contentStartCol = this.contentsStartCell.getColumn();
 
         List<T> objects = new ArrayList<>();
-        for (int i = contentStartRow; i <= contentEndRow; i += linesOfUnit) {
+        for (int i = contentStartRow; i <= contentEndRow - linesOfUnit + 1; i += linesOfUnit) {
             T object = clazz.getDeclaredConstructor().newInstance();
             for (int j = 0; j < sheet.getHeaderHeight(); j++) {
                 for (int k = 0; k < sheet.getHeaderWidth(); k++) {
-                    CellAddress cellAddress = new CellAddress(i + j, k);
+                    CellAddress cellAddress = new CellAddress(i + j, contentStartCol + k);
 
                     sheet.getHeaderValue(j, k).ifPresent(headerValue -> {
                         Set<Field> fields = excelPropertyMap.getFields();
@@ -114,6 +118,16 @@ public class ExcelConverter {
         if (sheet.isFormulaCell(cellAddress)) {
             if (parameterType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
                 setter.invoke(object, sheet.getValueAsString(cellAddress));
+            } else if (sheet.isDateFormulaCell(cellAddress)) {
+                if (parameterType.equals(Date.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress));
+                } else if (parameterType.equals(LocalDate.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                } else if (parameterType.equals(LocalDateTime.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                } else if (parameterType.equals(ZonedDateTime.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
+                }
             } else if (sheet.isNumberFormulaCell(cellAddress)) {
                 if (parameterType.equals(Double.TYPE) || parameterType.equals(Double.class)) {
                     setter.invoke(object, sheet.getValueAsDouble(cellAddress));
@@ -158,6 +172,16 @@ public class ExcelConverter {
         if (sheet.isFormulaCell(cellAddress)) {
             if (fieldType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
                 field.set(object, sheet.getValueAsString(cellAddress));
+            } else if (sheet.isDateFormulaCell(cellAddress)) {
+                if (fieldType.equals(Date.class)) {
+                    field.set(object, sheet.getValueAsDate(cellAddress));
+                } else if (fieldType.equals(LocalDate.class)) {
+                    field.set(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                } else if (fieldType.equals(LocalDateTime.class)) {
+                    field.set(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                } else if (fieldType.equals(ZonedDateTime.class)) {
+                    field.set(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
+                }
             } else if (sheet.isNumberFormulaCell(cellAddress)) {
                 if (fieldType.equals(Double.TYPE) || fieldType.equals(Double.class)) {
                     field.set(object, sheet.getValueAsDouble(cellAddress));
@@ -201,11 +225,12 @@ public class ExcelConverter {
 
         private String excelFilePath = null;
         private String sheetName = null;
-        private boolean hasHeader = false;
+        private boolean hasHeader = true;
         private HeaderDirection headerDirection = HeaderDirection.HORIZONTAL;
         private CellAddress headerStartCell = CellAddress.A1;
         private CellAddress headerEndCell = null;
-        private int linesOfUnit = 1;
+        private CellAddress contentsStartCell = null;
+        private Integer linesOfUnit = null;
 
         public Builder excelFilePath(String excelFilePath) {
             this.excelFilePath = excelFilePath;
@@ -227,13 +252,18 @@ public class ExcelConverter {
             return this;
         }
 
-        public Builder headerStartCell(CellAddress headerStartCell) {
-            this.headerStartCell = headerStartCell;
+        public Builder headerStartCell(String cellAddress) {
+            this.headerStartCell = new CellAddress(cellAddress);
             return this;
         }
 
-        public Builder headerEndCell(CellAddress headerEndCell) {
-            this.headerEndCell = headerEndCell;
+        public Builder headerEndCell(String cellAddress) {
+            this.headerEndCell = new CellAddress(cellAddress);
+            return this;
+        }
+
+        public Builder contentsStartCell(String cellAddress) {
+            this.contentsStartCell = new CellAddress(cellAddress);
             return this;
         }
 

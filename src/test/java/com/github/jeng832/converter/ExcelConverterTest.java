@@ -1,5 +1,6 @@
 package com.github.jeng832.converter;
 
+import com.github.jeng832.exception.ExcelConvertException;
 import com.github.jeng832.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ExcelConverterTest {
 
     @Test
-    public void convert_without_setter() throws IOException, ReflectiveOperationException {
+    public void convert_without_setter() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -33,7 +34,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_with_setter() throws IOException, ReflectiveOperationException {
+    public void convert_with_setter() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -53,7 +54,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_multi_line_header() throws IOException, ReflectiveOperationException {
+    public void convert_multi_line_header() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -71,7 +72,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_multi_line_header_with_setter() throws IOException, ReflectiveOperationException {
+    public void convert_multi_line_header_with_setter() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -89,7 +90,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_multi_line_header_multi_line_contents() throws IOException, ReflectiveOperationException {
+    public void convert_multi_line_header_multi_line_contents() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -107,7 +108,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_multi_line_header_multi_line_contents_with_setter() throws IOException, ReflectiveOperationException {
+    public void convert_multi_line_header_multi_line_contents_with_setter() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -125,7 +126,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_multi_line_header_multi_line_contents_with_empty_row_between_header_and_contents() throws IOException, ReflectiveOperationException {
+    public void convert_multi_line_header_multi_line_contents_with_empty_row_between_header_and_contents() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
@@ -144,7 +145,7 @@ class ExcelConverterTest {
     }
 
     @Test
-    public void convert_multi_line_header_multi_line_contents_with_empty_row_between_header_and_contents_with_setter() throws IOException, ReflectiveOperationException {
+    public void convert_multi_line_header_multi_line_contents_with_empty_row_between_header_and_contents_with_setter() throws ReflectiveOperationException, ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 

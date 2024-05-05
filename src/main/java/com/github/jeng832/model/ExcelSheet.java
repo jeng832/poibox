@@ -2,10 +2,8 @@ package com.github.jeng832.model;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Date;
-import java.util.Optional;
 
 public class ExcelSheet {
 
@@ -125,9 +123,9 @@ public class ExcelSheet {
         return this.header.getHeaderWidth();
     }
 
-    public Optional<String> getHeaderValue(int relativeCol, int relativeRow) {
-        if (this.header == null) return Optional.empty();
-        return Optional.ofNullable(header.getHeaderValue(relativeCol, relativeRow));
+    public String getHeaderValue(int relativeCol, int relativeRow) {
+        if (this.header == null) return null;
+        return header.getHeaderValue(relativeCol, relativeRow);
     }
 
     public Integer getLastNonEmptyRowNumber() {

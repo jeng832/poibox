@@ -5,7 +5,7 @@ import com.github.jeng832.annotation.ExcelProperty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class MultiLineHeaderTestClass {
+public class NoSetterMultiLineHeaderTestClass {
 
     @ExcelProperty("number")
     private Integer number;

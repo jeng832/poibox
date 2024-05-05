@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
-public class MultiLineHeaderMultiLineContentsTestClass {
+public class NoSetterMultiLineHeaderMultiLineContentsTestClass {
 
     @ExcelProperty("숫자")
     private Integer id;

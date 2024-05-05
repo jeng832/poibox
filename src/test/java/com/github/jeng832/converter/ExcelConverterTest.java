@@ -1,9 +1,6 @@
 package com.github.jeng832.converter;
 
-import com.github.jeng832.model.MultiLineHeaderMultiLineContentsTestClass;
-import com.github.jeng832.model.MultiLineHeaderTestClass;
-import com.github.jeng832.model.NoSetterTestClass;
-import com.github.jeng832.model.SetterTestClass;
+import com.github.jeng832.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -67,7 +64,25 @@ class ExcelConverterTest {
                 .headerStartCell("B4")
                 .headerEndCell("H4")
                 .build();
-        List<MultiLineHeaderTestClass> objects = converter.toObjects(MultiLineHeaderTestClass.class);
+        List<NoSetterMultiLineHeaderTestClass> objects = converter.toObjects(NoSetterMultiLineHeaderTestClass.class);
+        assertNotNull(objects);
+        Assertions.assertEquals(4, objects.size());
+        System.out.println(objects);
+    }
+
+    @Test
+    public void convert_multi_line_header_with_setter() throws IOException, ReflectiveOperationException {
+        Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+
+        ExcelConverter converter = ExcelConverter.builder()
+                .excelFilePath(absolutePath)
+                .sheetName("2line_header_1line_content")
+                .hasHeader(true)
+                .headerStartCell("B4")
+                .headerEndCell("H4")
+                .build();
+        List<SetterMultiLineHeaderTestClass> objects = converter.toObjects(SetterMultiLineHeaderTestClass.class);
         assertNotNull(objects);
         Assertions.assertEquals(4, objects.size());
         System.out.println(objects);
@@ -85,7 +100,25 @@ class ExcelConverterTest {
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .build();
-        List<MultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(MultiLineHeaderMultiLineContentsTestClass.class);
+        List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
+        assertNotNull(objects);
+        System.out.println(objects);
+        Assertions.assertEquals(2, objects.size());
+    }
+
+    @Test
+    public void convert_multi_line_header_multi_line_contents_with_setter() throws IOException, ReflectiveOperationException {
+        Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+
+        ExcelConverter converter = ExcelConverter.builder()
+                .excelFilePath(absolutePath)
+                .sheetName("2line_header_2line_content")
+                .hasHeader(true)
+                .headerStartCell("B3")
+                .headerEndCell("H4")
+                .build();
+        List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());
@@ -104,7 +137,26 @@ class ExcelConverterTest {
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
                 .build();
-        List<MultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(MultiLineHeaderMultiLineContentsTestClass.class);
+        List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
+        assertNotNull(objects);
+        System.out.println(objects);
+        Assertions.assertEquals(2, objects.size());
+    }
+
+    @Test
+    public void convert_multi_line_header_multi_line_contents_with_empty_row_between_header_and_contents_with_setter() throws IOException, ReflectiveOperationException {
+        Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+
+        ExcelConverter converter = ExcelConverter.builder()
+                .excelFilePath(absolutePath)
+                .sheetName("2line_header_2line_content_2")
+                .hasHeader(true)
+                .headerStartCell("B3")
+                .headerEndCell("H4")
+                .contentsStartCell("B7")
+                .build();
+        List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());

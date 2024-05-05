@@ -118,6 +118,16 @@ public class ExcelConverter {
         if (sheet.isFormulaCell(cellAddress)) {
             if (parameterType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
                 setter.invoke(object, sheet.getValueAsString(cellAddress));
+            } else if (sheet.isDateFormulaCell(cellAddress)) {
+                if (parameterType.equals(Date.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress));
+                } else if (parameterType.equals(LocalDate.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                } else if (parameterType.equals(LocalDateTime.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                } else if (parameterType.equals(ZonedDateTime.class)) {
+                    setter.invoke(object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
+                }
             } else if (sheet.isNumberFormulaCell(cellAddress)) {
                 if (parameterType.equals(Double.TYPE) || parameterType.equals(Double.class)) {
                     setter.invoke(object, sheet.getValueAsDouble(cellAddress));

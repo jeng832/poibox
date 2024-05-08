@@ -50,29 +50,29 @@ public class ExcelObject {
 }
 ```
 
-ExcelConverter는 지정한 Excel 파일을 객체로 변경하기 위한 모듈이다. builder를 통해서 생성되며, 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
+ExcelConverter는 지정한 Excel 파일을 객체로 변경하기 위한 모듈이다. ExcelConverterBuilderFactory를 통해서 builder를 얻고, builder를 통해서 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
 builder를 통해 생성된 ExcelConverter를 통해서 객체의 목록으로 저장할 수 있다.
 ```java
 String filePath = ... /* file path of the xml file */;
 
-ExcelConverter converter = ExcelConverter.builder()
+ExcelConverter converter = ExcelConverterBuilderFactory.create()
         .excelFilePath(filePath)
         .sheetName("sheet1")
         .hasHeader(true)
-        .headerStartCell(new CellAddress("A1"))
-        .headerEndCell(new CellAddress("G1"))
+        .headerStartCell("A1")
+        .headerEndCell("G1")
         .build();
 
 List<ExcelObject> objects = converter.toObjects(ExcelObject.class);
 ```
 builder 에서 각 변수에 대한 설명은 아래 표를 참조한다.
 
-| builder 항목        | 필수 여부 | 기본값                    | 설명                                                                        |
-|-------------------|-------|------------------------|---------------------------------------------------------------------------|
-| excelFilePath     | 필수    |                        | Excel 파일이 존재하는 위치                                                         |
-| sheetName         | 필수    |                        | 객체로 변경시키고자 하는 표가 있는 시트의 이름                                                |
-| hasHeader         | 비필수   | true                   | 표에 헤더가 존재하는지 여부                                                           |
-| headerStartCell   | 비필수   | A1                     | 헤더의 가장 좌측 제일 상단 셀 주소                                                      |
-| headerEndCell     | 비필수   |                        | 헤더의 가장 우측 제일 하단 셀 주소                                                      |
-| linesOfUnit       | 비필수   |                        | 표 내용에서 단일 정보 단위의 줄 갯수headerStartCell과 headerEndCell로 계산 된 줄수와 반드시 같아야 한다. |
-| contentsStartCell | 비필수   | 헤더의 가장 좌측 제일 하단 셀 아래 셀 | 내용이 시작하는 셀                                                                |
+| builder 항목        | 필수 여부 | 기본값                     | 설명                                                                        |
+|-------------------|-------|-------------------------|---------------------------------------------------------------------------|
+| excelFilePath     | 필수    |                         | Excel 파일이 존재하는 위치                                                         |
+| sheetName         | 필수    |                         | 객체로 변경시키고자 하는 표가 있는 시트의 이름                                                |
+| hasHeader         | 비필수   | true                    | 표에 헤더가 존재하는지 여부                                                           |
+| headerStartCell   | 비필수   | A1                      | 헤더의 가장 좌측 제일 상단 셀 주소                                                      |
+| headerEndCell     | 비필수   |                         | 헤더의 가장 우측 제일 하단 셀 주소                                                      |
+| linesOfUnit       | 비필수   |                         | 표 내용에서 단일 정보 단위의 줄 갯수headerStartCell과 headerEndCell로 계산 된 줄수와 반드시 같아야 한다. |
+| contentsStartCell | 비필수   | 헤더의 가장 좌측 제일 하단 셀의 아래 셀 | 내용이 시작하는 셀                                                                |

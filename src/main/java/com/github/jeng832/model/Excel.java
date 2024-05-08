@@ -30,8 +30,8 @@ public class Excel {
         return new ExcelSheet(workbook.getSheet(name));
     }
 
-    public ExcelSheet getSheetWithHeader(String name, CellAddress headerStartCell, CellAddress headerEndCell) {
-        return new ExcelSheet(workbook.getSheet(name), headerStartCell, headerEndCell);
+    public ExcelSheet getSheetWithHeader(String name, String headerStartCell, String headerEndCell) {
+        return new ExcelSheet(workbook.getSheet(name), new CellAddress(headerStartCell), new CellAddress(headerEndCell));
     }
 
 }

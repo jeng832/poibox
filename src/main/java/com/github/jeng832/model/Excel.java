@@ -3,8 +3,8 @@ package com.github.jeng832.model;
 import com.github.jeng832.exception.ExcelConvertException;
 import com.github.jeng832.exception.ExceptionMessages;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ public class Excel {
 
     public static Excel of(String fileName) throws ExcelConvertException {
         try {
-            return new Excel(new XSSFWorkbook(Files.newInputStream(Paths.get(fileName))));
+            return new Excel(WorkbookFactory.create(Files.newInputStream(Paths.get(fileName))));
         } catch (IOException e) {
             throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_CANNOT_LOAD_FILE, e);
         }

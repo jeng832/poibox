@@ -6,7 +6,7 @@
 
     <groupId>io.github.jeng832</groupId>
     <artifactId>poibox</artifactId>
-    <version>0.5</version>
+    <version>0.5.1</version>
 
     <properties>
         <java.version>1.8</java.version>

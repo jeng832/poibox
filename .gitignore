@@ -24,5 +24,3 @@ build/
 
 ### sdkman ###
 .sdkmanrc
-
-settings.xml

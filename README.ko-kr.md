@@ -1,7 +1,9 @@
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.jeng832/poibox.svg)](https://search.maven.org/artifact/io.github.jeng832/poibox)
+
 # POI-Box
 POI-Box는 Apache POI를 이용하여 Excel 파일을 Java 객체로 손쉽게 변환해주는 Java 라이브러리이다. POI-Box는 Java 1.8 이상이 필요하다.
 
-## Building jar file
+## How to build
 ```shell
 mvn package
 ```

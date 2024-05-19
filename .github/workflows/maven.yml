@@ -27,7 +27,7 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
     - name: Build with Maven without tests
-      run: mvn clean install -DskipTests
+      run: mvn clean install -DskipTests -Dgpg.skip
 
   update-dependency-graph:
     runs-on: ubuntu-latest

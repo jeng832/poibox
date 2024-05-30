@@ -6,7 +6,7 @@
 
     <groupId>io.github.jeng832</groupId>
     <artifactId>poibox</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
 
     <name>poibox</name>
     <description>POI-Box is a Java library that easily converts Excel files into Java objects using Apache POI.</description>
@@ -43,6 +43,7 @@
     <properties>
         <java.version>1.8</java.version>
         <poi.version>5.2.5</poi.version>
+        <log4j.version>2.23.1</log4j.version>
         <junit.version>5.10.2</junit.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -64,6 +65,14 @@
             <artifactId>poi-ooxml</artifactId>
             <version>${poi.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

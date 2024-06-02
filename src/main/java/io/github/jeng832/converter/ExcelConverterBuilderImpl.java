@@ -1,6 +1,8 @@
 package io.github.jeng832.converter;
 
 import io.github.jeng832.exception.ExcelConvertException;
+import io.github.jeng832.serializer.ExcelSerializer;
+import io.github.jeng832.serializer.ExcelSerializerImpl;
 import org.apache.poi.ss.util.CellAddress;
 
 class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
@@ -66,9 +68,15 @@ class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
         return this;
     }
 
+    @Deprecated
     @Override
     public ExcelConverter build() throws ExcelConvertException {
         return new ExcelConverterImpl(this);
+    }
+
+    @Override
+    public ExcelSerializer buildSerializer() throws ExcelConvertException {
+        return new ExcelSerializerImpl(this);
     }
 
     @Override

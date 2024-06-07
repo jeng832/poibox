@@ -5,7 +5,7 @@ import io.github.jeng832.exception.ExcelConvertException;
 import java.util.List;
 
 /**
- * @deprecated This object is replaced by {@link io.github.jeng832.serializer.ExcelSerializer}
+ * @deprecated This class is replaced by {@link io.github.jeng832.serializer.ExcelSerializer}
  */
 @Deprecated
 public interface ExcelConverter {

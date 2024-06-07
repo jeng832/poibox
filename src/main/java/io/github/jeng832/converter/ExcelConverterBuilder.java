@@ -21,6 +21,10 @@ public interface ExcelConverterBuilder {
 
     ExcelConverterBuilder linesOfUnit(int linesOfUnit);
 
+    /**
+     * This method builds ExcelConverter.
+     * @deprecated This method is replaced by {@link ExcelConverterBuilder#buildSerializer()}. And {@link ExcelConverter} is replaced by {@link ExcelSerializer}
+     */
     @Deprecated
     ExcelConverter build() throws ExcelConvertException;
 

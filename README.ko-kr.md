@@ -52,20 +52,20 @@ public class ExcelObject {
 }
 ```
 
-ExcelConverter를 통해서 객체의 목록으로 저장할 수 있다. ExcelConverterBuilderFactory를 통해서 builder를 얻고, builder를 통해서 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
+ExcelSerializer를 통해서 객체의 목록으로 저장할 수 있다. ExcelConverterBuilderFactory를 통해서 builder를 얻고, builder를 통해서 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
 
 ```java
 String filePath = ... /* file path of the xml file */;
 
-ExcelConverter converter = ExcelConverterBuilderFactory.create()
+ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
         .excelFilePath(filePath)
         .sheetName("sheet1")
         .hasHeader(true)
         .headerStartCell("A1")
         .headerEndCell("G1")
-        .build();
+        .buildSerializer();
 
-List<ExcelObject> objects = converter.toObjects(ExcelObject.class);
+List<ExcelObject> objects = serializer.serialize(ExcelObject.class);
 ```
 builder 에서 각 변수에 대한 설명은 아래 표를 참조한다.
 

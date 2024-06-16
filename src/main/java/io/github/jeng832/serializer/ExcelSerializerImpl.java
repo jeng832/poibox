@@ -1,6 +1,8 @@
-package io.github.jeng832.converter;
+package io.github.jeng832.serializer;
 
 import io.github.jeng832.annotation.ExcelProperty;
+import io.github.jeng832.converter.ExcelConverterBuilder;
+import io.github.jeng832.converter.HeaderDirection;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.exception.ExceptionMessages;
 import io.github.jeng832.model.Excel;
@@ -17,11 +19,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-/**
- * @deprecated This class is replaced by {@link io.github.jeng832.serializer.ExcelSerializerImpl}
- */
-@Deprecated
-class ExcelConverterImpl implements ExcelConverter {
+public class ExcelSerializerImpl implements ExcelSerializer {
 
     private final ExcelSheet sheet;
     private final boolean hasHeader;
@@ -31,7 +29,7 @@ class ExcelConverterImpl implements ExcelConverter {
     private final CellAddress contentsStartCell;
     private final int linesOfUnit;
 
-    ExcelConverterImpl(ExcelConverterBuilder builder) throws ExcelConvertException {
+    public ExcelSerializerImpl(ExcelConverterBuilder builder) throws ExcelConvertException {
         if (builder.getExcelFilePath() == null || builder.getExcelFilePath().isEmpty()) {
             throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_FILE_PATH_NOT_EXIST);
         }
@@ -57,9 +55,8 @@ class ExcelConverterImpl implements ExcelConverter {
                 (headerEndCell != null) ? new CellAddress(headerEndCell.getRow() + 1, headerStartCell.getColumn()) : new CellAddress(headerStartCell.getRow() + 1, headerStartCell.getColumn());
     }
 
-    @Deprecated
     @Override
-    public <T> List<T> toObjects(Class<T> clazz) throws ExcelConvertException {
+    public <T> List<T> serialize(Class<T> clazz) throws ExcelConvertException {
         ExcelPropertyMap excelPropertyMap = new ExcelPropertyMap();
         for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(ExcelProperty.class)) {

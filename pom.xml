@@ -6,7 +6,7 @@
 
     <groupId>io.github.jeng832</groupId>
     <artifactId>poibox</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
 
     <name>poibox</name>
     <description>POI-Box is a Java library that easily converts Excel files into Java objects using Apache POI.</description>

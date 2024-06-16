@@ -52,19 +52,19 @@ public class ExcelObject {
 }
 ```
 
-It can be saved as a list of objects through ExcelConverter. Obtain a builder through ExcelConverterBuilderFactory, and specify the file location, sheet information, and header-related information through the builder.
+It can be saved as a list of objects through ExcelSerializer. Obtain a builder through ExcelConverterBuilderFactory, and specify the file location, sheet information, and header-related information through the builder.
 ```java
 String filePath = ... /* file path of the xml file */;
 
-ExcelConverter converter = ExcelConverterBuilderFactory.create()
+ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
         .excelFilePath(filePath)
         .sheetName("sheet1")
         .hasHeader(true)
         .headerStartCell("A1")
         .headerEndCell("G1")
-        .build();
+        .buildSerializer();
 
-List<ExcelObject> objects = converter.toObjects(ExcelObject.class);
+List<ExcelObject> objects = serializer.serialize(ExcelObject.class);
 ```
 Refer to the table below for a description of each variable in builder.
 

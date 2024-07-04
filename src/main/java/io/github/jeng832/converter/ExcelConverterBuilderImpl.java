@@ -1,5 +1,7 @@
 package io.github.jeng832.converter;
 
+import io.github.jeng832.deserializer.ExcelDeserializer;
+import io.github.jeng832.deserializer.ExcelDeserializerImpl;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.serializer.ExcelSerializer;
 import io.github.jeng832.serializer.ExcelSerializerImpl;
@@ -77,6 +79,11 @@ class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
     @Override
     public ExcelSerializer buildSerializer() throws ExcelConvertException {
         return new ExcelSerializerImpl(this);
+    }
+
+    @Override
+    public ExcelDeserializer buildDeserializer() throws ExcelConvertException {
+        return new ExcelDeserializerImpl(this);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package io.github.jeng832.converter;
 
+import io.github.jeng832.deserializer.ExcelDeserializer;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.serializer.ExcelSerializer;
 
@@ -29,6 +30,8 @@ public interface ExcelConverterBuilder {
     ExcelConverter build() throws ExcelConvertException;
 
     ExcelSerializer buildSerializer() throws ExcelConvertException;
+
+    ExcelDeserializer buildDeserializer() throws ExcelConvertException;
 
     String getExcelFilePath();
 

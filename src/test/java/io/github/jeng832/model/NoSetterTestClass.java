@@ -16,7 +16,7 @@ public class NoSetterTestClass {
     @ExcelProperty("이름")
     private String name;
 
-    @ExcelProperty("날짜")
+    @ExcelProperty(value = "날짜")
     private LocalDate time;
 
     @ExcelProperty("formula")

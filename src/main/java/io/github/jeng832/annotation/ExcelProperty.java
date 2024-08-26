@@ -10,4 +10,8 @@ import java.lang.annotation.Target;
 public @interface ExcelProperty {
 
     String value() default "";
+
+    boolean deserializeTarget() default false;
+
+    int deserializeOrder() default 0;
 }

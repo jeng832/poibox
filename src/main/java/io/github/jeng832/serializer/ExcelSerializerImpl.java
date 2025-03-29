@@ -5,13 +5,13 @@ import io.github.jeng832.converter.ExcelConverterBuilder;
 import io.github.jeng832.converter.HeaderDirection;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.exception.ExceptionMessages;
-import io.github.jeng832.model.Excel;
-import io.github.jeng832.model.ExcelPropertyMap;
-import io.github.jeng832.model.ExcelSheet;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.util.CellAddress;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +21,8 @@ import java.util.*;
 
 public class ExcelSerializerImpl implements ExcelSerializer {
 
-    private final ExcelSheet sheet;
+    private final String excelFilePath;
+    private final String sheetName;
     private final boolean hasHeader;
     private final HeaderDirection headerDirection;
     private final CellAddress headerStartCell;
@@ -36,206 +37,98 @@ public class ExcelSerializerImpl implements ExcelSerializer {
         if (builder.getSheetName() == null || builder.getSheetName().isEmpty()) {
             throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_SHEET_NOT_EXIST);
         }
-        if (builder.hasHeader()) {
-            this.sheet = Excel.of(builder.getExcelFilePath())
-                    .getSheetWithHeader(builder.getSheetName(), builder.getHeaderStartCell(), builder.getHeaderEndCell());
-        } else {
-            this.sheet = Excel.of(builder.getExcelFilePath()).getSheet(builder.getSheetName());
-        }
+        this.excelFilePath = builder.getExcelFilePath();
+        this.sheetName = builder.getSheetName();
         this.hasHeader = builder.hasHeader();
         this.headerDirection = builder.getHeaderDirection();
         this.headerStartCell = new CellAddress(builder.getHeaderStartCell());
-        this.headerEndCell = new CellAddress(builder.getHeaderEndCell());
-        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : sheet.getHeaderHeight();
-        if (this.sheet.getHeaderHeight() != this.linesOfUnit) {
-            throw new ExcelConvertException("The lines of the content unit must be same with the height of the header");
-        }
+        this.headerEndCell = (builder.getHeaderEndCell() != null) ? new CellAddress(builder.getHeaderEndCell()) : null;
+        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : 1;
         this.contentsStartCell = (builder.getContentsStartCell() != null) ?
                 new CellAddress(builder.getContentsStartCell()) :
-                (headerEndCell != null) ? new CellAddress(headerEndCell.getRow() + 1, headerStartCell.getColumn()) : new CellAddress(headerStartCell.getRow() + 1, headerStartCell.getColumn());
+                (this.hasHeader) ? 
+                    ((this.headerEndCell != null) ? new CellAddress(this.headerEndCell.getRow() + 1, this.headerStartCell.getColumn()) : 
+                    new CellAddress(this.headerStartCell.getRow() + 1, this.headerStartCell.getColumn())) :
+                    this.headerStartCell;
     }
 
     @Override
-    public <T> List<T> serialize(Class<T> clazz) throws ExcelConvertException {
-        ExcelPropertyMap excelPropertyMap = new ExcelPropertyMap();
-        for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(ExcelProperty.class)) {
-                ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
-
-                String setterName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                Method setter;
-                try {
-                    setter = clazz.getDeclaredMethod(setterName, field.getType());
-                } catch (NoSuchMethodException e) {
-                    setter = null;
-                }
-                excelPropertyMap.add(field, excelProperty.value(), setter);
-            }
-        }
-
-        int contentStartRow = this.contentsStartCell.getRow();
-        int contentEndRow = sheet.getLastNonEmptyRowNumber();
-        int contentStartCol = this.contentsStartCell.getColumn();
-
-        List<T> objects = new ArrayList<>();
-        for (int i = contentStartRow; i <= contentEndRow - linesOfUnit + 1; i += linesOfUnit) {
-            T object;
-            try {
-                object = clazz.getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                     NoSuchMethodException e) {
-                throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_CANNOT_CONSTRUCT_OBJECT , e);
-            }
-            for (int j = 0; j < sheet.getHeaderHeight(); j++) {
-                for (int k = 0; k < sheet.getHeaderWidth(); k++) {
-                    CellAddress cellAddress = new CellAddress(i + j, contentStartCol + k);
-
-                    String headerValue = sheet.getHeaderValue(j, k);
-                    Set<Field> fields = excelPropertyMap.getFields();
-                    for (Field field : fields) {
-                        String value = excelPropertyMap.getValue(field).orElse(null);
-                        if (headerValue != null && headerValue.equals(value)) {
-                            Optional<Method> optSetter = excelPropertyMap.getSetter(field);
-                            if (optSetter.isPresent()) {
-                                Method setter = optSetter.get();
-                                setValue(object, setter, cellAddress);
-                            } else {
-                                setValue(object, field, cellAddress);
-                            }
-                        }
-                    }
+    public <T> void serialize(List<T> objects, Class<T> clazz) throws ExcelConvertException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet(sheetName);
+            
+            // ExcelProperty 어노테이션이 있는 필드들을 수집
+            Map<String, Field> propertyFields = new LinkedHashMap<>();
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.isAnnotationPresent(ExcelProperty.class)) {
+                    ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
+                    propertyFields.put(excelProperty.value(), field);
                 }
             }
 
-            objects.add(object);
-        }
-
-        return objects;
-    }
-
-    private <T> void setValue(T object, Method setter, CellAddress cellAddress) throws ExcelConvertException {
-        Class<?>[] parameterTypes = setter.getParameterTypes();
-        Class<?> parameterType = parameterTypes[0];
-        if (sheet.isFormulaCell(cellAddress)) {
-            if (parameterType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
-                invokeSetter(setter, object, sheet.getValueAsString(cellAddress));
-            } else if (sheet.isDateFormulaCell(cellAddress)) {
-                if (parameterType.equals(Date.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsDate(cellAddress));
-                } else if (parameterType.equals(LocalDate.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-                } else if (parameterType.equals(LocalDateTime.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-                } else if (parameterType.equals(ZonedDateTime.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
-                }
-            } else if (sheet.isNumberFormulaCell(cellAddress)) {
-                if (parameterType.equals(Double.TYPE) || parameterType.equals(Double.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsDouble(cellAddress));
-                } else if (parameterType.equals(Float.TYPE) || parameterType.equals(Float.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsDouble(cellAddress).floatValue());
-                } else if (parameterType.equals(Integer.TYPE) || parameterType.equals(Integer.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsInteger(cellAddress));
-                } else if (parameterType.equals(Long.TYPE) || parameterType.equals(Long.class)) {
-                    invokeSetter(setter, object, sheet.getValueAsLong(cellAddress));
+            // 헤더 생성
+            if (hasHeader) {
+                Row headerRow = sheet.createRow(headerStartCell.getRow());
+                int col = headerStartCell.getColumn();
+                for (String header : propertyFields.keySet()) {
+                    Cell cell = headerRow.createCell(col++);
+                    cell.setCellValue(header);
                 }
             }
-        } else if (sheet.isStringCell(cellAddress)) {
-            invokeSetter(setter, object, sheet.getValueAsString(cellAddress));
-        } else if (sheet.isDateCell(cellAddress)) {
-            if (parameterType.equals(Date.class)) {
-                invokeSetter(setter, object, sheet.getValueAsDate(cellAddress));
-            } else if (parameterType.equals(LocalDate.class)) {
-                invokeSetter(setter, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-            } else if (parameterType.equals(LocalDateTime.class)) {
-                invokeSetter(setter, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-            } else if (parameterType.equals(ZonedDateTime.class)) {
-                invokeSetter(setter, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
+
+            // 데이터 작성
+            int rowNum = contentsStartCell.getRow();
+            for (T object : objects) {
+                Row row = sheet.createRow(rowNum++);
+                int col = contentsStartCell.getColumn();
+                
+                for (Field field : propertyFields.values()) {
+                    field.setAccessible(true);
+                    Cell cell = row.createCell(col++);
+                    setCellValue(cell, field.get(object));
+                }
             }
-        } else if (sheet.isNumberCell(cellAddress)) {
-            if (parameterType.equals(Double.TYPE) || parameterType.equals(Double.class)) {
-                invokeSetter(setter, object, sheet.getValueAsDouble(cellAddress));
-            } else if (parameterType.equals(Float.TYPE) || parameterType.equals(Float.class)) {
-                invokeSetter(setter, object, sheet.getValueAsDouble(cellAddress).floatValue());
-            } else if (parameterType.equals(Integer.TYPE) || parameterType.equals(Integer.class)) {
-                invokeSetter(setter, object, sheet.getValueAsInteger(cellAddress));
-            } else if (parameterType.equals(Long.TYPE) || parameterType.equals(Long.class)) {
-                invokeSetter(setter, object, sheet.getValueAsLong(cellAddress));
+
+            // 파일 저장
+            try (FileOutputStream fileOut = new FileOutputStream(excelFilePath)) {
+                workbook.write(fileOut);
             }
-        } else if (sheet.isBooleanCell(cellAddress)) {
-            invokeSetter(setter, object, sheet.getValueAsBoolean(cellAddress));
+        } catch (IOException | IllegalAccessException e) {
+            throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_CANNOT_WRITE_FILE, e);
         }
     }
 
-    private void invokeSetter(Method setter, Object object, Object value) throws ExcelConvertException {
-        try {
-            setter.invoke(object, value);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_CANNOT_SET_VALUE, e);
+    private void setCellValue(Cell cell, Object value) {
+        if (value == null) {
+            cell.setCellValue("");
+        } else if (value instanceof String) {
+            cell.setCellValue((String) value);
+        } else if (value instanceof Number) {
+            cell.setCellValue(((Number) value).doubleValue());
+        } else if (value instanceof Boolean) {
+            cell.setCellValue((Boolean) value);
+        } else if (value instanceof Date) {
+            cell.setCellValue((Date) value);
+            CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
+            dateStyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("yyyy-mm-dd"));
+            cell.setCellStyle(dateStyle);
+        } else if (value instanceof LocalDate) {
+            cell.setCellValue(Date.from(((LocalDate) value).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
+            dateStyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("yyyy-mm-dd"));
+            cell.setCellStyle(dateStyle);
+        } else if (value instanceof LocalDateTime) {
+            cell.setCellValue(Date.from(((LocalDateTime) value).atZone(ZoneId.systemDefault()).toInstant()));
+            CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
+            dateStyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
+            cell.setCellStyle(dateStyle);
+        } else if (value instanceof ZonedDateTime) {
+            cell.setCellValue(Date.from(((ZonedDateTime) value).toInstant()));
+            CellStyle dateStyle = cell.getSheet().getWorkbook().createCellStyle();
+            dateStyle.setDataFormat(cell.getSheet().getWorkbook().createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
+            cell.setCellStyle(dateStyle);
+        } else {
+            cell.setCellValue(value.toString());
         }
     }
-
-    private <T> void setValue(T object, Field field, CellAddress cellAddress) throws ExcelConvertException {
-        field.setAccessible(true);
-        Class<?> fieldType = field.getType();
-        if (sheet.isFormulaCell(cellAddress)) {
-            if (fieldType.equals(String.class) && sheet.isStringFormulaCell(cellAddress)) {
-                setValue(field, object, sheet.getValueAsString(cellAddress));
-            } else if (sheet.isDateFormulaCell(cellAddress)) {
-                if (fieldType.equals(Date.class)) {
-                    setValue(field, object, sheet.getValueAsDate(cellAddress));
-                } else if (fieldType.equals(LocalDate.class)) {
-                    setValue(field, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-                } else if (fieldType.equals(LocalDateTime.class)) {
-                    setValue(field, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-                } else if (fieldType.equals(ZonedDateTime.class)) {
-                    setValue(field, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
-                }
-            } else if (sheet.isNumberFormulaCell(cellAddress)) {
-                if (fieldType.equals(Double.TYPE) || fieldType.equals(Double.class)) {
-                    setValue(field, object, sheet.getValueAsDouble(cellAddress));
-                } else if (fieldType.equals(Float.TYPE) || fieldType.equals(Float.class)) {
-                    setValue(field, object, sheet.getValueAsDouble(cellAddress).floatValue());
-                } else if (fieldType.equals(Integer.TYPE) || fieldType.equals(Integer.class)) {
-                    setValue(field, object, sheet.getValueAsInteger(cellAddress));
-                } else if (fieldType.equals(Long.TYPE) || fieldType.equals(Long.class)) {
-                    setValue(field, object, sheet.getValueAsLong(cellAddress));
-                }
-            }
-        } else if (sheet.isStringCell(cellAddress)) {
-            setValue(field, object, sheet.getValueAsString(cellAddress));
-        } else if(sheet.isDateCell(cellAddress)) {
-            if (fieldType.equals(Date.class)) {
-                setValue(field, object, sheet.getValueAsDate(cellAddress));
-            } else if (fieldType.equals(LocalDate.class)) {
-                setValue(field, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-            } else if (fieldType.equals(LocalDateTime.class)) {
-                setValue(field, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-            } else if (fieldType.equals(ZonedDateTime.class)) {
-                setValue(field, object, sheet.getValueAsDate(cellAddress).toInstant().atZone(ZoneId.systemDefault()));
-            }
-
-        } else if (sheet.isNumberCell(cellAddress)) {
-            if (fieldType.equals(Double.TYPE) || fieldType.equals(Double.class)) {
-                setValue(field, object, sheet.getValueAsDouble(cellAddress));
-            } else if (fieldType.equals(Float.TYPE) || fieldType.equals(Float.class)) {
-                setValue(field, object, sheet.getValueAsDouble(cellAddress).floatValue());
-            } else if (fieldType.equals(Integer.TYPE) || fieldType.equals(Integer.class)) {
-                setValue(field, object, sheet.getValueAsInteger(cellAddress));
-            } else if (fieldType.equals(Long.TYPE) || fieldType.equals(Long.class)) {
-                setValue(field, object, sheet.getValueAsLong(cellAddress));
-            }
-        } else if (sheet.isBooleanCell(cellAddress)) {
-            setValue(field, object, sheet.getValueAsBoolean(cellAddress));
-        }
-    }
-
-    private void setValue(Field field, Object object, Object value) throws ExcelConvertException {
-        try {
-            field.set(object, value);
-        } catch (IllegalAccessException e) {
-            throw new ExcelConvertException(ExceptionMessages.EXCEL_CONVERT_EXCEPTION_CANNOT_SET_VALUE, e);
-        }
-    }
-
 }

@@ -1,8 +1,9 @@
 package io.github.jeng832.converter;
 
+import io.github.jeng832.deserializer.ExcelDeserializer;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.model.*;
-import io.github.jeng832.serializer.ExcelSerializer;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,22 +13,22 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class ExcelSerializerTest {
+class ExcelDeserializerTest {
 
     @Test
     public void convert_without_setter() throws ExcelConvertException {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("시트1")
                 .hasHeader(true)
                 .headerStartCell("A1")
                 .headerEndCell("G1")
-                .buildSerializer();
+                .buildDeserializer();
 
-        List<NoSetterTestClass> objects = serializer.serialize(NoSetterTestClass.class);
+        List<NoSetterTestClass> objects = deserializer.deserialize(NoSetterTestClass.class);
         assertNotNull(objects);
         Assertions.assertEquals(4, objects.size());
         System.out.println(objects);
@@ -38,19 +39,18 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("시트1")
                 .hasHeader(true)
                 .headerStartCell("A1")
                 .headerEndCell("G1")
-                .buildSerializer();
+                .buildDeserializer();
 
-        List<SetterTestClass> objects = serializer.serialize(SetterTestClass.class);
+        List<SetterTestClass> objects = deserializer.deserialize(SetterTestClass.class);
         assertNotNull(objects);
         Assertions.assertEquals(4, objects.size());
         System.out.println(objects);
-
     }
 
     @Test
@@ -58,14 +58,14 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("2line_header_1line_content")
                 .hasHeader(true)
                 .headerStartCell("B4")
                 .headerEndCell("H4")
-                .buildSerializer();
-        List<NoSetterMultiLineHeaderTestClass> objects = serializer.serialize(NoSetterMultiLineHeaderTestClass.class);
+                .buildDeserializer();
+        List<NoSetterMultiLineHeaderTestClass> objects = deserializer.deserialize(NoSetterMultiLineHeaderTestClass.class);
         assertNotNull(objects);
         Assertions.assertEquals(4, objects.size());
         System.out.println(objects);
@@ -76,14 +76,14 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("2line_header_1line_content")
                 .hasHeader(true)
                 .headerStartCell("B4")
                 .headerEndCell("H4")
-                .buildSerializer();
-        List<SetterMultiLineHeaderTestClass> objects = serializer.serialize(SetterMultiLineHeaderTestClass.class);
+                .buildDeserializer();
+        List<SetterMultiLineHeaderTestClass> objects = deserializer.deserialize(SetterMultiLineHeaderTestClass.class);
         assertNotNull(objects);
         Assertions.assertEquals(4, objects.size());
         System.out.println(objects);
@@ -94,14 +94,14 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("2line_header_2line_content")
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
-                .buildSerializer();
-        List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = serializer.serialize(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
+                .buildDeserializer();
+        List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());
@@ -112,14 +112,14 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("2line_header_2line_content")
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
-                .buildSerializer();
-        List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = serializer.serialize(SetterMultiLineHeaderMultiLineContentsTestClass.class);
+                .buildDeserializer();
+        List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());
@@ -130,15 +130,15 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("2line_header_2line_content_2")
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
-                .buildSerializer();
-        List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = serializer.serialize(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
+                .buildDeserializer();
+        List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());
@@ -149,18 +149,17 @@ class ExcelSerializerTest {
         Path resourceDirectory = Paths.get("src","test","resources", "xlsx", "test.xlsx");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
-        ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
                 .excelFilePath(absolutePath)
                 .sheetName("2line_header_2line_content_2")
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
-                .buildSerializer();
-        List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = serializer.serialize(SetterMultiLineHeaderMultiLineContentsTestClass.class);
+                .buildDeserializer();
+        List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());
     }
-
 }

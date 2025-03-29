@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
- * @deprecated This class is replaced by {@link io.github.jeng832.serializer.ExcelSerializerImpl}
+ * @deprecated This class is replaced by {@link io.github.jeng832.deserializer.ExcelDeserializerImpl}
  */
 @Deprecated
 class ExcelConverterImpl implements ExcelConverter {

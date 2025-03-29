@@ -5,14 +5,14 @@ import io.github.jeng832.exception.ExcelConvertException;
 import java.util.List;
 
 /**
- * @deprecated This class is replaced by {@link io.github.jeng832.serializer.ExcelSerializer}
+ * @deprecated This class is replaced by {@link io.github.jeng832.deserializer.ExcelDeserializer}
  */
 @Deprecated
 public interface ExcelConverter {
 
     /**
      * This method is convert Excel file to objects.
-     * @deprecated This method is replaced by {@link io.github.jeng832.serializer.ExcelSerializer#serialize(Class)}
+     * @deprecated This method is replaced by {@link io.github.jeng832.deserializer.ExcelDeserializer#deserialize(Class)}
      */
     @Deprecated
     <T> List<T> toObjects(Class<T> clazz) throws ExcelConvertException;

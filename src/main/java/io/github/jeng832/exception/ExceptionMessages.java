@@ -7,4 +7,5 @@ public class ExceptionMessages {
     public static final String EXCEL_CONVERT_EXCEPTION_CANNOT_LOAD_FILE = "Cannot load the file";
     public static final String EXCEL_CONVERT_EXCEPTION_CANNOT_CONSTRUCT_OBJECT = "Cannot construct the object";
     public static final String EXCEL_CONVERT_EXCEPTION_CANNOT_SET_VALUE = "Cannot set the value";
+    public static final String EXCEL_CONVERT_EXCEPTION_CANNOT_WRITE_FILE = "Cannot write the file";
 }

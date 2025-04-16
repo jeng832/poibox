@@ -1,17 +1,20 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.jeng832/poibox.svg)](https://search.maven.org/artifact/io.github.jeng832/poibox)
 
 # POI-Box
-POI-Box는 Apache POI를 이용하여 Excel 파일을 Java 객체로 손쉽게 변환해주는 Java 라이브러리이다. POI-Box는 Java 1.8 이상이 필요하다.
+POI-Box는 Apache POI를 이용하여 Excel 파일을 Java 객체로 손쉽게 변환하거나 Java 객체를 Excel 파일로 손쉽게 변환해주는 Java 라이브러리이다. POI-Box는 Java 1.8 이상이 필요하다.
 
-## How to build
+## 빌드 방법
 ```shell
 mvn package
 ```
 
-## How to use
+## 사용 방법
+
+### Excel 파일을 Java 객체로 변환 (역직렬화)
+
 Excel 파일의 "sheet1" 시트의 A1 ~ G1 셀 사이에 있는 헤더를 이용하는 표를 객체화 하기 위한 예시이다.
-Excel 파일의 시트에 있는 표를 저장할 객체의 필드에 어떤 열의 값을 저장할지 지정한다. 값의 지정은 @ExcelProperty 어노테이션을 이용한다.
-@ExcelProperty의 value는 Excel 파일의 표의 column 이름을 사용한다.
+Excel 파일의 시트에 있는 표를 저장할 객체의 필드에 어떤 열의 값을 저장할지 지정한다. 값의 지정은 `@ExcelProperty` 어노테이션을 이용한다.
+`@ExcelProperty`의 값은 Excel 파일 표의 헤더 이름을 사용한다.
 
 아래와 같은 표를 객체로 변경한다고 가정하자
 
@@ -22,7 +25,7 @@ Excel 파일의 시트에 있는 표를 저장할 객체의 필드에 어떤 열
 | 3      | 13 | 타이거JK   | 2022. 10. 21 | 16      | 8.000    | 2021. 1. 21 0:00:00   |
 | 4      | 14 | 특_수_문_자 | 2022. 10. 22 | 18      | 6.000    | 2021. 01. 04 13:00:24 |
 
-먼저 @ExcelProperty를 이용하여 필드가 저장할 표의 컬럼을 지정한다.
+먼저 `@ExcelProperty`를 이용하여 필드가 저장할 표의 헤더를 지정한다.
 ```java
 public class ExcelObject {
 
@@ -52,29 +55,50 @@ public class ExcelObject {
 }
 ```
 
-ExcelSerializer를 통해서 객체의 목록으로 저장할 수 있다. ExcelConverterBuilderFactory를 통해서 builder를 얻고, builder를 통해서 파일의 위치와 시트정보 그리고 헤더 관련 정보를 지정한다.
+`ExcelDeserializer`를 통해 객체의 목록으로 변환할 수 있다. `ExcelConverterBuilderFactory`를 통해서 빌더를 얻고, 빌더를 통해서 파일의 위치, 시트 정보, 헤더 관련 정보를 지정한다.
 
 ```java
-String filePath = ... /* file path of the xml file */;
+String filePath = ... /* Excel 파일 경로 */;
 
-ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+ExcelDeserializer deserializer = ExcelConverterBuilderFactory.create()
         .excelFilePath(filePath)
         .sheetName("sheet1")
-        .hasHeader(true)
-        .headerStartCell("A1")
-        .headerEndCell("G1")
+        .hasHeader(true) // 기본값은 true
+        .headerStartCell("A1") // 기본값은 A1
+        .headerEndCell("G1") // 헤더가 한 줄이면 생략 가능
+        .buildDeserializer();
+
+List<ExcelObject> objects = deserializer.deserialize(ExcelObject.class);
+```
+
+### Java 객체를 Excel 파일로 변환 (직렬화)
+
+Java 객체 리스트를 Excel 파일로 변환하는 예시이다. 객체의 필드에 `@ExcelProperty` 어노테이션을 사용하여 Excel 헤더를 지정한다.
+
+```java
+List<ExcelObject> objectsToSerialize = ... /* 직렬화할 객체 리스트 */;
+String outputFilePath = ... /* 출력할 Excel 파일 경로 */;
+
+ExcelSerializer serializer = ExcelConverterBuilderFactory.create()
+        .excelFilePath(outputFilePath)
+        .sheetName("Sheet1") // 기본값은 Sheet0
+        .hasHeader(true) // 기본값은 true
+        .headerStartCell("A1") // 기본값은 A1
         .buildSerializer();
 
-List<ExcelObject> objects = serializer.serialize(ExcelObject.class);
+serializer.serialize(objectsToSerialize, ExcelObject.class);
 ```
-builder 에서 각 변수에 대한 설명은 아래 표를 참조한다.
 
-| builder 항목        | 필수 여부 | 기본값                     | 설명                                                                        |
-|-------------------|-------|-------------------------|---------------------------------------------------------------------------|
-| excelFilePath     | 필수    |                         | Excel 파일이 존재하는 위치                                                         |
-| sheetName         | 필수    |                         | 객체로 변경시키고자 하는 표가 있는 시트의 이름                                                |
-| hasHeader         | 비필수   | true                    | 표에 헤더가 존재하는지 여부                                                           |
-| headerStartCell   | 비필수   | A1                      | 헤더의 가장 좌측 제일 상단 셀 주소                                                      |
-| headerEndCell     | 비필수   |                         | 헤더의 가장 우측 제일 하단 셀 주소                                                      |
-| linesOfUnit       | 비필수   |                         | 표 내용에서 단일 정보 단위의 줄 갯수headerStartCell과 headerEndCell로 계산 된 줄수와 반드시 같아야 한다. |
-| contentsStartCell | 비필수   | 헤더의 가장 좌측 제일 하단 셀의 아래 셀 | 내용이 시작하는 셀                                                                |
+### 빌더 옵션
+
+`ExcelConverterBuilderFactory.create()`를 통해 얻은 빌더에서 설정 가능한 옵션은 다음과 같다.
+
+| 옵션                | 필수 여부 | 기본값                            | 설명                                                                                           |
+|---------------------|-----------|-----------------------------------|----------------------------------------------------------------------------------------------|
+| `excelFilePath`     | 필수      |                                   | Excel 파일 경로 (역직렬화 시 입력 파일, 직렬화 시 출력 파일)                                                 |
+| `sheetName`         | 필수      |                                   | 대상 시트 이름                                                                                 |
+| `hasHeader`         | 선택      | `true`                            | 표에 헤더 존재 여부                                                                            |
+| `headerStartCell`   | 선택      | `A1`                              | 헤더 시작 셀 주소                                                                              |
+| `headerEndCell`     | 선택      |                                   | 헤더 종료 셀 주소 (헤더가 여러 줄/열일 경우 지정)                                                  |
+| `contentsStartCell` | 선택      | 헤더 바로 아래/오른쪽 셀             | 내용 시작 셀 주소 (헤더와 내용 사이에 빈 줄/열이 있을 경우 지정)                               | 
+| `linesOfUnit`       | 선택      | 헤더 높이/너비 (헤더 방향에 따라 다름) | 내용에서 단일 객체를 나타내는 줄/열의 수 (헤더와 내용의 구조가 복잡할 경우 지정) |

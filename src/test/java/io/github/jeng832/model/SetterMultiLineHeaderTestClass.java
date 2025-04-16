@@ -1,9 +1,9 @@
 package io.github.jeng832.model;
 
-import io.github.jeng832.annotation.ExcelProperty;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import io.github.jeng832.annotation.ExcelProperty;
 
 public class SetterMultiLineHeaderTestClass {
 

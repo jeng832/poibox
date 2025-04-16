@@ -1,8 +1,8 @@
 package io.github.jeng832.converter;
 
-import io.github.jeng832.exception.ExcelConvertException;
-
 import java.util.List;
+
+import io.github.jeng832.exception.ExcelConvertException;
 
 /**
  * @deprecated This class is replaced by {@link io.github.jeng832.deserializer.ExcelDeserializer}

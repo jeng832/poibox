@@ -1,12 +1,13 @@
 package io.github.jeng832.model;
 
-import io.github.jeng832.exception.ExcelConvertException;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import io.github.jeng832.exception.ExcelConvertException;
 
 class ExcelTest {
     @Test

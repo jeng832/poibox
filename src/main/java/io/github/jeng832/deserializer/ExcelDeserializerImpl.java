@@ -26,6 +26,8 @@ import io.github.jeng832.model.ExcelSheet;
 
 public class ExcelDeserializerImpl implements ExcelDeserializer {
 
+    private static final int HEADER_CONTENT_ROW_GAP = 1;
+
     private final ExcelSheet sheet;
     private final boolean hasHeader;
     private final HeaderDirection headerDirection;
@@ -50,14 +52,20 @@ public class ExcelDeserializerImpl implements ExcelDeserializer {
         this.hasHeader = builder.hasHeader();
         this.headerDirection = builder.getHeaderDirection();
         this.headerStartCell = new CellAddress(builder.getHeaderStartCell());
-        this.headerEndCell = new CellAddress(builder.getHeaderEndCell());
-        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : sheet.getHeaderHeight();
-        if (this.sheet.getHeaderHeight() != this.linesOfUnit) {
+        this.headerEndCell = builder.getHeaderEndCell() != null ? new CellAddress(builder.getHeaderEndCell()) : this.headerStartCell;
+        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : (this.hasHeader ? sheet.getHeaderHeight() : 1);
+        if (this.hasHeader && this.sheet.getHeaderHeight() != this.linesOfUnit) {
             throw new ExcelConvertException("The lines of the content unit must be same with the height of the header");
         }
-        this.contentsStartCell = (builder.getContentsStartCell() != null) ?
-                new CellAddress(builder.getContentsStartCell()) :
-                (headerEndCell != null) ? new CellAddress(headerEndCell.getRow() + 1, headerStartCell.getColumn()) : new CellAddress(headerStartCell.getRow() + 1, headerStartCell.getColumn());
+        this.contentsStartCell = determineContentsStartCell(builder, this.headerStartCell, this.headerEndCell);
+    }
+
+    private CellAddress determineContentsStartCell(ExcelConverterBuilder builder, CellAddress headerStartCell, CellAddress headerEndCell) {
+        if (builder.getContentsStartCell() != null) {
+            return new CellAddress(builder.getContentsStartCell());
+        } else {
+            return new CellAddress(headerEndCell.getRow() + HEADER_CONTENT_ROW_GAP, headerStartCell.getColumn());
+        }
     }
 
     @Override

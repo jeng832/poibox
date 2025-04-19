@@ -1,19 +1,30 @@
 package io.github.jeng832.converter;
 
-import io.github.jeng832.deserializer.ExcelDeserializer;
-import io.github.jeng832.exception.ExcelConvertException;
-import io.github.jeng832.model.*;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import io.github.jeng832.deserializer.ExcelDeserializer;
+import io.github.jeng832.exception.ExcelConvertException;
+import io.github.jeng832.model.NoSetterMultiLineHeaderMultiLineContentsTestClass;
+import io.github.jeng832.model.NoSetterMultiLineHeaderTestClass;
+import io.github.jeng832.model.NoSetterTestClass;
+import io.github.jeng832.model.SetterMultiLineHeaderMultiLineContentsTestClass;
+import io.github.jeng832.model.SetterMultiLineHeaderTestClass;
+import io.github.jeng832.model.SetterTestClass;
 
 class ExcelDeserializerTest {
+
+    private String getTestExcelPath() {
+        return "src/test/resources/xlsx/test.xlsx";
+    }
 
     @Test
     public void convert_without_setter() throws ExcelConvertException {
@@ -161,5 +172,41 @@ class ExcelDeserializerTest {
         assertNotNull(objects);
         System.out.println(objects);
         Assertions.assertEquals(2, objects.size());
+    }
+
+    @Test
+    void deserialize_with_custom_contents_start_cell() throws ExcelConvertException {
+        String absolutePath = getTestExcelPath();
+
+        ExcelDeserializer deserializer = new ExcelConverterBuilderImpl()
+                .excelFilePath(absolutePath)
+                .sheetName("시트1")
+                .hasHeader(true)
+                .headerStartCell("A1")
+                .headerEndCell("G1")
+                .contentsStartCell("A3")  // 헤더와 컨텐츠 사이에 빈 행이 있는 경우
+                .buildDeserializer();
+
+        List<NoSetterTestClass> objects = deserializer.deserialize(NoSetterTestClass.class);
+        assertNotNull(objects);
+        assertTrue(objects.isEmpty());  // A3부터 시작하면 데이터가 없어야 함
+    }
+
+    @Test
+    void deserialize_with_default_content_start_cell() throws ExcelConvertException {
+        String absolutePath = getTestExcelPath();
+
+        ExcelDeserializer deserializer = new ExcelConverterBuilderImpl()
+                .excelFilePath(absolutePath)
+                .sheetName("시트1")
+                .hasHeader(true)
+                .headerStartCell("A1")
+                .headerEndCell("G1")
+                // contentsStartCell을 지정하지 않음 - 기본값으로 HEADER_CONTENT_ROW_GAP이 적용되어야 함
+                .buildDeserializer();
+
+        List<NoSetterTestClass> objects = deserializer.deserialize(NoSetterTestClass.class);
+        assertNotNull(objects);
+        assertEquals(4, objects.size());  // 기본 간격으로 시작하면 4개의 데이터가 있어야 함
     }
 }

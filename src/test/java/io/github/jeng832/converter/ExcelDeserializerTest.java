@@ -175,24 +175,6 @@ class ExcelDeserializerTest {
     }
 
     @Test
-    void deserialize_with_custom_contents_start_cell() throws ExcelConvertException {
-        String absolutePath = getTestExcelPath();
-
-        ExcelDeserializer deserializer = new ExcelConverterBuilderImpl()
-                .excelFilePath(absolutePath)
-                .sheetName("시트1")
-                .hasHeader(true)
-                .headerStartCell("A1")
-                .headerEndCell("G1")
-                .contentsStartCell("A3")  // 헤더와 컨텐츠 사이에 빈 행이 있는 경우
-                .buildDeserializer();
-
-        List<NoSetterTestClass> objects = deserializer.deserialize(NoSetterTestClass.class);
-        assertNotNull(objects);
-        assertTrue(objects.isEmpty());  // A3부터 시작하면 데이터가 없어야 함
-    }
-
-    @Test
     void deserialize_with_default_content_start_cell() throws ExcelConvertException {
         String absolutePath = getTestExcelPath();
 

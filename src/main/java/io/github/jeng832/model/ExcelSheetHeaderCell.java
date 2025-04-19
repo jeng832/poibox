@@ -23,6 +23,9 @@ public class ExcelSheetHeaderCell {
     }
 
     public String getValue() {
+        if (mergedCell) {
+            return this.representativeCell.getValue();
+        }
         return value;
     }
 }

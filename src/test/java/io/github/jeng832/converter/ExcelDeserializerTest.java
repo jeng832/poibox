@@ -2,7 +2,6 @@ package io.github.jeng832.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,6 +110,7 @@ class ExcelDeserializerTest {
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
+                .linesOfUnit(2)
                 .buildDeserializer();
         List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
@@ -129,6 +129,7 @@ class ExcelDeserializerTest {
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
+                .linesOfUnit(2)
                 .buildDeserializer();
         List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
@@ -148,6 +149,7 @@ class ExcelDeserializerTest {
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
+                .linesOfUnit(2)
                 .buildDeserializer();
         List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
@@ -167,6 +169,7 @@ class ExcelDeserializerTest {
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
+                .linesOfUnit(2)
                 .buildDeserializer();
         List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = deserializer.deserialize(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);

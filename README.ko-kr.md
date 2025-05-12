@@ -3,6 +3,22 @@
 # POI-Box
 POI-Box는 Apache POI를 이용하여 Excel 파일을 Java 객체로 손쉽게 변환하거나 Java 객체를 Excel 파일로 손쉽게 변환해주는 Java 라이브러리이다. POI-Box는 Java 1.8 이상이 필요하다.
 
+## 요구사항
+
+- Java 1.8 이상
+
+## 의존성 추가
+
+`pom.xml`에 다음을 추가하세요:
+```xml
+<dependency>
+  <groupId>io.github.jeng832</groupId>
+  <artifactId>poibox</artifactId>
+  <version>1.0.2</version>
+</dependency>
+```
+> **참고:** Apache POI 등 필요한 라이브러리는 poibox에 포함되어 있으므로 별도로 추가할 필요가 없습니다.
+
 ## 빌드 방법
 ```shell
 mvn package
@@ -100,5 +116,7 @@ serializer.serialize(objectsToSerialize, ExcelObject.class);
 | `hasHeader`         | 선택      | `true`                            | 표에 헤더 존재 여부                                                                            |
 | `headerStartCell`   | 선택      | `A1`                              | 헤더 시작 셀 주소                                                                              |
 | `headerEndCell`     | 선택      |                                   | 헤더 종료 셀 주소 (헤더가 여러 줄/열일 경우 지정)                                                  |
-| `contentsStartCell` | 선택      | 헤더 바로 아래/오른쪽 셀             | 내용 시작 셀 주소 (헤더와 내용 사이에 빈 줄/열이 있을 경우 지정)                               | 
-| `linesOfUnit`       | 선택      | 헤더 높이/너비 (헤더 방향에 따라 다름) | 내용에서 단일 객체를 나타내는 줄/열의 수 (헤더와 내용의 구조가 복잡할 경우 지정) |
+| `contentsStartCell` | 선택      | 헤더 바로 아래/오른쪽 셀             | 내용 시작 셀 주소 (헤더와 내용 사이에 빈 줄/열이 있을 경우 지정, 생략 시 자동 감지)                | 
+| `linesOfUnit`       | 선택      | 헤더 높이/너비 (헤더 방향에 따라 다름) | 내용에서 단일 객체를 나타내는 줄/열의 수 (복잡한 구조일 때 지정)                                 |
+
+> **참고:** 대부분의 옵션은 기본값이 있어 단순 표에서는 최소한의 설정만으로 동작합니다. 멀티라인 헤더/복잡한 표는 옵션을 명시적으로 지정하세요.

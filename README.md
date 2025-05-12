@@ -3,6 +3,22 @@
 # POI-Box
 POI-Box is a Java library that simplifies the conversion between Excel files and Java objects using Apache POI. POI-Box requires Java 1.8 or higher.
 
+## Requirements
+
+- Java 1.8 or higher
+
+## Dependency
+
+Add the following to your `pom.xml`:
+```xml
+<dependency>
+  <groupId>io.github.jeng832</groupId>
+  <artifactId>poibox</artifactId>
+  <version>1.0.2</version>
+</dependency>
+```
+> **Note:** Apache POI and other dependencies are included automatically. You do not need to add them separately.
+
 ## How to Build
 ```shell
 mvn package
@@ -99,5 +115,7 @@ The following options can be configured using the builder obtained from `ExcelCo
 | `hasHeader`         | Optional | `true`                          | Indicates whether the table has a header                                                       |
 | `headerStartCell`   | Optional | `A1`                            | Starting cell address of the header                                                            |
 | `headerEndCell`     | Optional |                                 | Ending cell address of the header (specify if the header spans multiple rows/columns)         |
-| `contentsStartCell` | Optional | Cell right below/right of header | Starting cell address of the content (specify if there are empty rows/columns between header and content) |
-| `linesOfUnit`       | Optional | Header height/width            | Number of rows/columns representing a single object in the content (specify for complex structures) |
+| `contentsStartCell` | Optional | Cell below/right of header      | Starting cell address of the content (auto-detected if omitted)                               |
+| `linesOfUnit`       | Optional | Header height/width             | Number of rows/columns representing a single object in the content (for complex structures)   |
+
+> **Note:** Most options have reasonable defaults. For multi-line headers or complex tables, specify `headerEndCell`, `contentsStartCell`, and `linesOfUnit` as needed.

@@ -1,15 +1,21 @@
 package io.github.jeng832.converter;
 
-import io.github.jeng832.exception.ExcelConvertException;
-import io.github.jeng832.model.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import io.github.jeng832.exception.ExcelConvertException;
+import io.github.jeng832.model.NoSetterMultiLineHeaderMultiLineContentsTestClass;
+import io.github.jeng832.model.NoSetterMultiLineHeaderTestClass;
+import io.github.jeng832.model.NoSetterTestClass;
+import io.github.jeng832.model.SetterMultiLineHeaderMultiLineContentsTestClass;
+import io.github.jeng832.model.SetterMultiLineHeaderTestClass;
+import io.github.jeng832.model.SetterTestClass;
 
 class ExcelConverterTest {
 
@@ -99,6 +105,7 @@ class ExcelConverterTest {
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
+                .linesOfUnit(2)
                 .build();
         List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
@@ -117,6 +124,7 @@ class ExcelConverterTest {
                 .hasHeader(true)
                 .headerStartCell("B3")
                 .headerEndCell("H4")
+                .linesOfUnit(2)
                 .build();
         List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
@@ -136,6 +144,7 @@ class ExcelConverterTest {
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
+                .linesOfUnit(2)
                 .build();
         List<NoSetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(NoSetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);
@@ -155,6 +164,7 @@ class ExcelConverterTest {
                 .headerStartCell("B3")
                 .headerEndCell("H4")
                 .contentsStartCell("B7")
+                .linesOfUnit(2)
                 .build();
         List<SetterMultiLineHeaderMultiLineContentsTestClass> objects = converter.toObjects(SetterMultiLineHeaderMultiLineContentsTestClass.class);
         assertNotNull(objects);

@@ -14,7 +14,7 @@ Add the following to your `pom.xml`:
 <dependency>
   <groupId>io.github.jeng832</groupId>
   <artifactId>poibox</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 > **Note:** Apache POI and other dependencies are included automatically. You do not need to add them separately.

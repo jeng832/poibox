@@ -14,7 +14,7 @@ POI-Box는 Apache POI를 이용하여 Excel 파일을 Java 객체로 손쉽게 �
 <dependency>
   <groupId>io.github.jeng832</groupId>
   <artifactId>poibox</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 > **참고:** Apache POI 등 필요한 라이브러리는 poibox에 포함되어 있으므로 별도로 추가할 필요가 없습니다.

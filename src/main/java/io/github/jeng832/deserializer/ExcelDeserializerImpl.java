@@ -21,12 +21,13 @@ import io.github.jeng832.converter.HeaderDirection;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.exception.ExceptionMessages;
 import io.github.jeng832.model.Excel;
+import io.github.jeng832.model.ExcelConstants;
 import io.github.jeng832.model.ExcelPropertyMap;
 import io.github.jeng832.model.ExcelSheet;
 
 public class ExcelDeserializerImpl implements ExcelDeserializer {
 
-    private static final int HEADER_CONTENT_ROW_GAP = 1;
+    private static final int HEADER_CONTENT_ROW_GAP = ExcelConstants.HEADER_CONTENT_ROW_GAP;
 
     private final ExcelSheet sheet;
     private final boolean hasHeader;
@@ -53,7 +54,7 @@ public class ExcelDeserializerImpl implements ExcelDeserializer {
         this.headerDirection = builder.getHeaderDirection();
         this.headerStartCell = new CellAddress(builder.getHeaderStartCell());
         this.headerEndCell = builder.getHeaderEndCell() != null ? new CellAddress(builder.getHeaderEndCell()) : this.headerStartCell;
-        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : (this.hasHeader ? sheet.getHeaderHeight() : 1);
+        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : (this.hasHeader ? sheet.getHeaderHeight() : ExcelConstants.DEFAULT_LINES_OF_UNIT);
         if (this.hasHeader && this.sheet.getHeaderHeight() != this.linesOfUnit) {
             throw new ExcelConvertException("The lines of the content unit must be same with the height of the header");
         }

@@ -19,6 +19,7 @@ import io.github.jeng832.annotation.ExcelProperty;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.exception.ExceptionMessages;
 import io.github.jeng832.model.Excel;
+import io.github.jeng832.model.ExcelConstants;
 import io.github.jeng832.model.ExcelPropertyMap;
 import io.github.jeng832.model.ExcelSheet;
 
@@ -59,7 +60,7 @@ class ExcelConverterImpl implements ExcelConverter {
         }
         this.contentsStartCell = (builder.getContentsStartCell() != null) ?
                 new CellAddress(builder.getContentsStartCell()) :
-                (headerEndCell != null) ? new CellAddress(headerEndCell.getRow() + 1, headerStartCell.getColumn()) : new CellAddress(headerStartCell.getRow() + 1, headerStartCell.getColumn());
+                (headerEndCell != null) ? new CellAddress(headerEndCell.getRow() + ExcelConstants.HEADER_CONTENT_ROW_GAP, headerStartCell.getColumn()) : new CellAddress(headerStartCell.getRow() + ExcelConstants.HEADER_CONTENT_ROW_GAP, headerStartCell.getColumn());
     }
 
     @Deprecated

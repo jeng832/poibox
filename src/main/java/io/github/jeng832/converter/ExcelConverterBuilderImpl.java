@@ -8,6 +8,7 @@ import org.apache.poi.ss.util.CellAddress;
 import io.github.jeng832.deserializer.ExcelDeserializer;
 import io.github.jeng832.deserializer.ExcelDeserializerImpl;
 import io.github.jeng832.exception.ExcelConvertException;
+import io.github.jeng832.model.ExcelConstants;
 import io.github.jeng832.serializer.ExcelSerializer;
 import io.github.jeng832.serializer.ExcelSerializerImpl;
 
@@ -18,7 +19,6 @@ class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
      */
     private static final HeaderDirection DEFAULT_HEADER_DIRECTION = HeaderDirection.HORIZONTAL;
     private static final CellAddress DEFAULT_HEADER_START_CELL = CellAddress.A1;
-    private static final int DEFAULT_LINES_OF_UNIT = 1;
 
     private String excelFilePath = null;
     private String sheetName = null;
@@ -41,7 +41,7 @@ class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
     ExcelConverterBuilderImpl() {
         this.headerDirection = DEFAULT_HEADER_DIRECTION;
         this.headerStartCell = DEFAULT_HEADER_START_CELL;
-        this.linesOfUnit = DEFAULT_LINES_OF_UNIT;
+        this.linesOfUnit = ExcelConstants.DEFAULT_LINES_OF_UNIT;;
     }
 
     @Override
@@ -119,7 +119,7 @@ class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
      */
     @Override
     public ExcelConverterBuilder linesOfUnit(int linesOfUnit) {
-        if (linesOfUnit <= 0) {
+        if (linesOfUnit <= ExcelConstants.DEFAULT_HEADER_ROW) {
             throw new IllegalArgumentException("linesOfUnit은 0보다 커야 합니다");
         }
         this.linesOfUnit = linesOfUnit;
@@ -204,7 +204,7 @@ class ExcelConverterBuilderImpl implements ExcelConverterBuilder {
         }
         
         if (contentsStartCell == null && hasHeader && headerEndCell != null) {
-            contentsStartCell = new CellAddress(headerEndCell.getRow() + 1, headerStartCell.getColumn());
+            contentsStartCell = new CellAddress(headerEndCell.getRow() + ExcelConstants.HEADER_CONTENT_ROW_GAP, headerStartCell.getColumn());
         }
     }
 

@@ -25,6 +25,7 @@ import io.github.jeng832.converter.ExcelConverterBuilder;
 import io.github.jeng832.converter.HeaderDirection;
 import io.github.jeng832.exception.ExcelConvertException;
 import io.github.jeng832.exception.ExceptionMessages;
+import io.github.jeng832.model.ExcelConstants;
 
 public class ExcelSerializerImpl implements ExcelSerializer {
 
@@ -50,12 +51,12 @@ public class ExcelSerializerImpl implements ExcelSerializer {
         this.headerDirection = builder.getHeaderDirection();
         this.headerStartCell = new CellAddress(builder.getHeaderStartCell());
         this.headerEndCell = (builder.getHeaderEndCell() != null) ? new CellAddress(builder.getHeaderEndCell()) : null;
-        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : 1;
+        this.linesOfUnit = (builder.getLinesOfUnit() != null) ? builder.getLinesOfUnit() : ExcelConstants.DEFAULT_LINES_OF_UNIT;
         this.contentsStartCell = (builder.getContentsStartCell() != null) ?
                 new CellAddress(builder.getContentsStartCell()) :
                 (this.hasHeader) ? 
-                    ((this.headerEndCell != null) ? new CellAddress(this.headerEndCell.getRow() + 1, this.headerStartCell.getColumn()) : 
-                    new CellAddress(this.headerStartCell.getRow() + 1, this.headerStartCell.getColumn())) :
+                    ((this.headerEndCell != null) ? new CellAddress(this.headerEndCell.getRow() + ExcelConstants.HEADER_CONTENT_ROW_GAP, this.headerStartCell.getColumn()) : 
+                    new CellAddress(this.headerStartCell.getRow() + ExcelConstants.HEADER_CONTENT_ROW_GAP, this.headerStartCell.getColumn())) :
                     this.headerStartCell;
     }
 
